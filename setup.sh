@@ -46,3 +46,11 @@ if [ "${0}" != "${BASH_SOURCE}" ]; then
 else
   echo "----> Error: This script is meant to be sourced!"
 fi
+
+#Modified this to set up MELA
+export ROOFITSYS=${ROOTSYS}
+cd JHUGenerator.v7.5.5/JHUGenMELA
+source ./setup.sh 
+eval $(./setup.sh env)
+cd ../../
+

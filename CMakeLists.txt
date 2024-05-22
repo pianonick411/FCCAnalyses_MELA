@@ -56,7 +56,7 @@ message (STATUS "C++ standard: ${CMAKE_CXX_STANDARD}")
 
 #--- Dependencies -------------------------------------------------------------
 
-find_package(ROOT COMPONENTS ROOTVecOps ROOTDataFrame REQUIRED)
+find_package(ROOT COMPONENTS ROOTVecOps ROOTDataFrame RooFit REQUIRED)
 find_package(EDM4HEP REQUIRED)
 find_package(podio)
 
