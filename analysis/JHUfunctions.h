@@ -100,7 +100,76 @@ Vec_i get_gen_daus(int mcin, Vec_mc in, Vec_i ind) {
     return result;
 
 }
-   
+
+
+// Vec_tlv get_best_jet_pair(float DesiredMass, Vec_tlv Jets){
+//     // Returns a vector holding one TLV best matched to the desired mass 
+//     Vec_tlv result; 
+//     float MassDiff;
+//     float MassDiffOld = 9999999999.9; 
+//     std::pair<int, int> GoodJets; 
+//     for(size_t i = 0; i < Jets.size(); ++i){
+//         for(size_t j = 1; j < Jets.size(); ++j){
+//             if (j == i){
+//                 continue; 
+//             }
+//             float Mij = (Jets[i] + Jets[j]).M(); 
+//             MassDiff = pow((Mij - DesiredMass), 2);
+//            // cout << "This is MassDiff: " << MassDiff << endl;  
+//             if (MassDiff < MassDiffOld){
+//                 GoodJets.first = i; 
+//                 GoodJets.second = j; 
+//                 MassDiffOld = MassDiff; 
+//             }
+//         }
+
+//     }
+//     // cout << "This is first index: " << GoodJets.first << endl; 
+//     // cout << "This is second index: " << GoodJets.second << endl; 
+//     result.push_back(Jets[GoodJets.first] + Jets[GoodJets.second]); 
+//     return result; 
+// }
+
+
+Vec_tlv get_best_jet_pair(float DesiredMass, float DesiredMRec, float ecm, Vec_tlv Jets){
+    // Returns a vector holding one TLV best matched to the desired mass and making the recoil mass in the event closest to a specified value. 
+    Vec_tlv result; 
+    float MassDiff;
+    float MRecDiff;
+    float Score;  
+    float MRec = 9999999999.9; 
+    float ScoreOld = 9999999999.9; 
+    std::pair<int, int> GoodJets; 
+
+    //Pseudocode b/c I don't have internet: 
+    auto CenterOfMomentum = TLorentzVector(0,0,0,ecm); 
+    
+    for(size_t i = 0; i < Jets.size(); ++i){
+        for(size_t j = 1; j < Jets.size(); ++j){
+            if (j == i){
+                continue; 
+            }
+            float Mij = (Jets[i] + Jets[j]).M(); 
+            MassDiff = pow((Mij - DesiredMass), 2);
+
+            //Again, pseudocode b/c I don't have internet: 
+            MRec = (CenterOfMomentum - (Jets[i] + Jets[j])).M(); 
+            MRecDiff = pow((MRec - DesiredMRec), 2); 
+            Score = MassDiff + MRecDiff; 
+           // cout << "This is MassDiff: " << MassDiff << endl;  
+            if (Score < ScoreOld){
+                GoodJets.first = i; 
+                GoodJets.second = j; 
+                ScoreOld = Score; 
+            }
+        }
+
+    }
+    // cout << "This is first index: " << GoodJets.first << endl; 
+    // cout << "This is second index: " << GoodJets.second << endl; 
+    result.push_back(Jets[GoodJets.first] + Jets[GoodJets.second]); 
+    return result; 
+}
 
 
 
@@ -196,6 +265,7 @@ Vec_i jetTruthFinder(std::vector<std::vector<int>> constituents, Vec_rp reco, Ve
     }
     return result;
 }
+
 
 
 
@@ -301,10 +371,10 @@ float SetAssocId(){
 }
 */
 
-//AssocId could be done so that it is not hardcoded, this is just a stopgap measure to get a result. 
 
-std::array<int,2> SetAssocId(){
-    std::array<int,2> AssocIdArray = {13, -13}; 
+
+std::array<int,2> SetAssocId(float in1, float in2){
+    std::array<int,2> AssocIdArray = {static_cast<int>(in1), static_cast<int>(in2)}; 
     return AssocIdArray; 
 }
 
@@ -685,7 +755,8 @@ float Weights(std::array<int, 1>  HiggsID, Vec_tlv higgsTlv, std::array<int, 2> 
     
 
     m.setInputEvent(leptons, jets, 0, 1); 
-    m.setProcess(TVar::SelfDefine_spin0, TVar::JHUGen, TVar::Lep_ZH); 
+    //m.setProcess(TVar::SelfDefine_spin0, TVar::JHUGen, TVar::Lep_ZH); 
+    m.setProcess(TVar::SelfDefine_spin0, TVar::JHUGen, TVar::Had_ZH); 
 
   //  cout << "This is the value of the ghz1 coupling in the General function: " << m.selfDHzzcoupl[0][0][0] << endl;
   //   cout << "This is the value of the ghz4 coupling in the General function: " << m.selfDHzzcoupl[0][3][0] << endl;  
@@ -702,6 +773,7 @@ float Weights(std::array<int, 1>  HiggsID, Vec_tlv higgsTlv, std::array<int, 2> 
 
 //By convention for the diagram describing the ZH process in this diagram: https://arxiv.org/pdf/1309.4819.pdf, Z1 = Z* propagator and the leptons associated with it (Z1_lept, Z1_lept2) are the colliding e-e+ pair. Z2 is the Z produced in association with the Higgs. 
 //For OS lepton pairs, the negative lepton comes first in the arguments.  
+//As a note, I'm currently doing gen-level quarks as q = "Z2 lept 1" and qBar = "Z2 lept 2"
 //For future reference cos_theta_star = MELAAngles[0], cos_1 = MELAAngles[1], cos_2 = MELAAngles[2], phi = MELAAngles[3], phi1 = MELAAngles[4]
 Vec_f MELAAngles(Vec_tlv Z1_lept1, int Z1_lept1Id, Vec_tlv Z1_lept2, int Z1_lept2Id, Vec_tlv Z2_lept1, int Z2_lept1Id, Vec_tlv Z2_lept2, int Z2_lept2Id){    
     float costhetastar = -99; 
