@@ -1,6 +1,7 @@
 
 # analysis config
 do_gen = False # replace reco-particles by the corresponding gen particle
+do_weights = True
 
 
 import os 
@@ -74,7 +75,10 @@ outputDir   = "jetTests/AHH/"
 
 
 # optional: ncpus, default is 4, -1 uses all cores available
-nCPUS       = 1
+if do_weights:
+    nCPUS       = 1
+else: 
+    nCPUS = -1
 
 # scale the histograms with the cross-section and integrated luminosity
 doScale = True
@@ -223,6 +227,13 @@ def build_graph(df, dataset):
     df = df.Define("Gen_MELA_Angles", "FCCAnalyses::JHUfunctions::MELAAngles(electronTLV, 11, positronTLV, -11, qTLV, qPDG[0], qBarTLV, qBarPDG[0])")
 
     df = df.Define("PDGTest", "static_cast<int>(qPDG[0])")
+
+
+
+    df = df.Define("Gen_cos_1_U", "PDGTest == 2 ? Gen_MELA_Angles[1] : 999")
+    df = df.Define("Gen_cos_1_D", "PDGTest == 1 ? Gen_MELA_Angles[1] : 999")
+
+
     df = df.Define("Gen_cos_1", "Gen_MELA_Angles[1]")
     df = df.Define("Gen_cos_2", "Gen_MELA_Angles[2]")
     df = df.Define("Gen_phi", "Gen_MELA_Angles[3]")
@@ -236,7 +247,8 @@ def build_graph(df, dataset):
     # df = df.Define("MixtureVec", 'FCCAnalyses::JHUfunctions::createCouplingVector({ghz1Pair, ghz4Pair})')
     # df = df.Define("NegMixtureVec", 'FCCAnalyses::JHUfunctions::createCouplingVector({ghz1Pair, Negghz4Pair})')
 
-    df = df.Define("BSMWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgsMCTLV, LHEAssociatedParticleId, qTLV, qBarTLV, BSMVec)')
+    if do_weights:
+        df = df.Define("BSMWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgsMCTLV, LHEAssociatedParticleId, qTLV, qBarTLV, BSMVec)')
 
     # df = df.Define("full_decays_1", "full_decays[1]")
     # df = df.Define("full_decays_2", "full_decays[2]")
@@ -337,11 +349,16 @@ def build_graph(df, dataset):
    
 
     
-    df = df.Define("Z_tlv", "FCCAnalyses::JHUfunctions::get_best_jet_pair(91.2, 125.0, 240, jets_tlv)")
-    df = df.Define("Z_mass", "Z_tlv[0].M()")
+    df = df.Define("Best_Jets_Result", "FCCAnalyses::JHUfunctions::get_best_jet_pair(91.2, 125.0, 240, jets_tlv)")
+    df = df.Define("Z_tlv", "Best_Jets_Result[0]")
+    df = df.Define("Z_mass", "Z_tlv.M()")
     #df = df.Define("Z_mass", "(jets_tlv[0] + jets_tlv[1]).M()")
-    df = df.Define("Z_pt","Z_tlv[0].Pt()" )
+    df = df.Define("Z_pt","Z_tlv.Pt()" )
     df = df.Define("Jets_No", "jets_tlv.size()")
+
+    df = df.Define("recoil_tlv", "Best_Jets_Result[1]")
+    df = df.Define("recoil_mass", "recoil_tlv.M()")
+
      
     #df = df.Filter("Z_pt < 61")
     # df = df.Define("zbuilder_result", f"FCCAnalyses::ZHfunctions::resonanceBuilder_mass_recoil(91.2, 125, 0.4, 240, {'true' if do_gen else 'false'})(jets, MCRecoAssociations0, MCRecoAssociations1, ReconstructedParticles, Particle, Particle0, Particle1)")
@@ -353,19 +370,25 @@ def build_graph(df, dataset):
 
 
     #Make Histos 
+    results.append(df.Histo1D(("Gen_cos_1_U", "", *bins_cos), "Gen_cos_1_U"))
+    results.append(df.Histo1D(("Gen_cos_1_D", "", *bins_cos), "Gen_cos_1_D"))
+
     results.append(df.Histo1D(("Gen_cos_1", "", *bins_cos), "Gen_cos_1"))
     results.append(df.Histo1D(("Gen_cos_2", "", *bins_cos), "Gen_cos_2"))
     results.append(df.Histo1D(("Gen_phi", "", *bins_phiMELA), "Gen_phi"))
 
-    results.append(df.Histo1D(("Gen_cos_1_BSM", "", *bins_cos), "Gen_cos_1", "BSMWeights"))
-    results.append(df.Histo1D(("Gen_cos_2_BSM", "", *bins_cos), "Gen_cos_2", "BSMWeights"))
-    results.append(df.Histo1D(("Gen_phi_BSM", "", *bins_phiMELA), "Gen_phi", "BSMWeights"))
+    if do_weights: 
+        results.append(df.Histo1D(("Gen_cos_1_BSM", "", *bins_cos), "Gen_cos_1", "BSMWeights"))
+        results.append(df.Histo1D(("Gen_cos_2_BSM", "", *bins_cos), "Gen_cos_2", "BSMWeights"))
+        results.append(df.Histo1D(("Gen_phi_BSM", "", *bins_phiMELA), "Gen_phi", "BSMWeights"))
 
 
     results.append(df.Histo1D(("Z_mass", "", *bins_m_Z), "Z_mass"))
     results.append(df.Histo1D(("Z_Mass_MC", "", *bins_m_Z), "Z_Mass_MC"))
     results.append(df.Histo1D(("Z_pt", "", *bins_p_ll), "Z_pt"))
     results.append(df.Histo1D(("Z_pt_MC", "", *bins_p_ll), "Z_pt_MC"))
+
+    results.append(df.Histo1D(("recoil_mass", "", *bins_m_Z), "recoil_mass"))
 
     results.append(df.Histo1D(("jets_pt", "", *bins_p_ll), "jets_pt"))
     results.append(df.Histo1D(("Jets_No", "", *bins_count), "Jets_No"))

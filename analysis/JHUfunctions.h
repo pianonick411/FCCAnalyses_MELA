@@ -132,16 +132,19 @@ Vec_i get_gen_daus(int mcin, Vec_mc in, Vec_i ind) {
 
 
 Vec_tlv get_best_jet_pair(float DesiredMass, float DesiredMRec, float ecm, Vec_tlv Jets){
-    // Returns a vector holding one TLV best matched to the desired mass and making the recoil mass in the event closest to a specified value. 
+    // Returns a vector holding, in the first entry, a TLV best matched to the desired mass and making the recoil mass in the event closest to a specified value. 
+    // In the second entry, the four momentum of the recoil in the event is returned. 
     Vec_tlv result; 
     float MassDiff;
     float MRecDiff;
     float Score;  
     float MRec = 9999999999.9; 
     float ScoreOld = 9999999999.9; 
+
+    float chi_squared_frac = 0.4; 
     std::pair<int, int> GoodJets; 
 
-    //Pseudocode b/c I don't have internet: 
+    
     auto CenterOfMomentum = TLorentzVector(0,0,0,ecm); 
     
     for(size_t i = 0; i < Jets.size(); ++i){
@@ -152,10 +155,10 @@ Vec_tlv get_best_jet_pair(float DesiredMass, float DesiredMRec, float ecm, Vec_t
             float Mij = (Jets[i] + Jets[j]).M(); 
             MassDiff = pow((Mij - DesiredMass), 2);
 
-            //Again, pseudocode b/c I don't have internet: 
+            
             MRec = (CenterOfMomentum - (Jets[i] + Jets[j])).M(); 
             MRecDiff = pow((MRec - DesiredMRec), 2); 
-            Score = MassDiff + MRecDiff; 
+            Score = (1-chi_squared_frac)*MassDiff + chi_squared_frac*MRecDiff; // The weights on MassDiff and MRecDiff are lifted from Jan's analysis. 
            // cout << "This is MassDiff: " << MassDiff << endl;  
             if (Score < ScoreOld){
                 GoodJets.first = i; 
@@ -167,7 +170,10 @@ Vec_tlv get_best_jet_pair(float DesiredMass, float DesiredMRec, float ecm, Vec_t
     }
     // cout << "This is first index: " << GoodJets.first << endl; 
     // cout << "This is second index: " << GoodJets.second << endl; 
+    auto recoil_p4 = TLorentzVector(0,0,0,ecm); 
+    recoil_p4 -= (Jets[GoodJets.first] + Jets[GoodJets.second]); 
     result.push_back(Jets[GoodJets.first] + Jets[GoodJets.second]); 
+    result.push_back(recoil_p4);
     return result; 
 }
 
@@ -755,9 +761,14 @@ float Weights(std::array<int, 1>  HiggsID, Vec_tlv higgsTlv, std::array<int, 2> 
     
 
     m.setInputEvent(leptons, jets, 0, 1); 
-    //m.setProcess(TVar::SelfDefine_spin0, TVar::JHUGen, TVar::Lep_ZH); 
-    m.setProcess(TVar::SelfDefine_spin0, TVar::JHUGen, TVar::Had_ZH); 
-
+    if(AssociatedParticleID[0] == 11 || AssociatedParticleID[0] == 13){
+        m.setProcess(TVar::SelfDefine_spin0, TVar::JHUGen, TVar::Lep_ZH); 
+       // cout << "Currently hitting Lep_ZH" << endl; 
+    }
+    else {
+        m.setProcess(TVar::SelfDefine_spin0, TVar::JHUGen, TVar::Had_ZH); 
+       // cout << "Currently hitting Had_ZH" << endl;
+    }
   //  cout << "This is the value of the ghz1 coupling in the General function: " << m.selfDHzzcoupl[0][0][0] << endl;
   //   cout << "This is the value of the ghz4 coupling in the General function: " << m.selfDHzzcoupl[0][3][0] << endl;  
     m.computeProdP(prob, 1); 
