@@ -185,7 +185,7 @@ std::pair<Vec_tlv, std::pair<int, int>> get_best_jet_pair(float DesiredMass, flo
     // Returns a vector holding, in the first entry, a TLV best matched to the desired mass and making the recoil mass in the event closest to a specified value. 
     // In the second entry, the four momentum of the recoil in the event is returned. 
     //Entries 3 and 4 are the individual best jets. 
-    std::pair<Vec_tlv, Vec_i> result; 
+    std::pair<Vec_tlv,std::pair<int, int>> result; 
     Vec_tlv TLVresult; 
     float MassDiff;
     float MRecDiff;

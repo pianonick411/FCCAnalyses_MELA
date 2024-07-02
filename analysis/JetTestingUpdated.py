@@ -651,12 +651,12 @@ def build_graph(df, dataset):
 
     
     df = df.Define("Best_Jets_Pair", "FCCAnalyses::JHUfunctions::get_best_jet_pair(91.2, 125.0, 240, jets_tlv)")
-    df = df.Define("Best_Jets_Results", "Best_Jets_Pair.first")
+    df = df.Define("Best_Jets_Result", "Best_Jets_Pair.first")
 
     df = df.Define("Best_Jets_Idx1", "Best_Jets_Pair.second.first")
     df = df.Define("Best_Jets_Idx2", "Best_Jets_Pair.second.second")
 
-    df = df.Define("Best_Jet1_PDG", )
+   # df = df.Define("Best_Jet1_PDG", )
 
     df = df.Define("Z_tlv", "Best_Jets_Result[0]")
     df = df.Define("Z_mass", "Z_tlv.M()")
