@@ -1,7 +1,7 @@
 
 # analysis config
 do_gen = False # replace reco-particles by the corresponding gen particle
-do_weights = True
+do_weights = False
 
 
 import os 
@@ -231,8 +231,12 @@ def build_graph(df, dataset):
 
 
     df = df.Define("Gen_cos_1_U", "PDGTest == 2 ? Gen_MELA_Angles[1] : 999")
-    df = df.Define("Gen_cos_1_D", "PDGTest == 1 ? Gen_MELA_Angles[1] : 999")
+    df = df.Define("Gen_cos_2_U", "PDGTest == 2 ? Gen_MELA_Angles[2] : 999")
+    df = df.Define("Gen_phi_U", "PDGTest == 2 ? Gen_MELA_Angles[3] : 999")
 
+    df = df.Define("Gen_cos_1_D", "PDGTest == 1 ? Gen_MELA_Angles[1] : 999")
+    df = df.Define("Gen_cos_2_D", "PDGTest == 1 ? Gen_MELA_Angles[2] : 999")
+    df = df.Define("Gen_phi_D", "PDGTest == 1 ? Gen_MELA_Angles[3] : 999")
 
     df = df.Define("Gen_cos_1", "Gen_MELA_Angles[1]")
     df = df.Define("Gen_cos_2", "Gen_MELA_Angles[2]")
@@ -359,6 +363,15 @@ def build_graph(df, dataset):
     df = df.Define("recoil_tlv", "Best_Jets_Result[1]")
     df = df.Define("recoil_mass", "recoil_tlv.M()")
 
+    #Making Reco-Level Angles 
+    df = df.Define("ideal_positron_tlv", "FCCAnalyses::JHUfunctions::makePositronTlv()")
+    df = df.Define("ideal_electron_tlv", "FCCAnalyses::JHUfunctions::makeElectronTlv()")
+
+    df = df.Define("Reco_MELA_Angles", "FCCAnalyses::JHUfunctions::MELAAngles(ideal_electron_tlv, 11, ideal_positron_tlv, -11, Best_Jets_Result[2], 1, Best_Jets_Result[3], -1)")
+    df = df.Define("cos_1", "Reco_MELA_Angles[1]")
+    df = df.Define("cos_2", "Reco_MELA_Angles[2]")
+    df = df.Define("phi", "Reco_MELA_Angles[3]")
+
      
     #df = df.Filter("Z_pt < 61")
     # df = df.Define("zbuilder_result", f"FCCAnalyses::ZHfunctions::resonanceBuilder_mass_recoil(91.2, 125, 0.4, 240, {'true' if do_gen else 'false'})(jets, MCRecoAssociations0, MCRecoAssociations1, ReconstructedParticles, Particle, Particle0, Particle1)")
@@ -371,11 +384,23 @@ def build_graph(df, dataset):
 
     #Make Histos 
     results.append(df.Histo1D(("Gen_cos_1_U", "", *bins_cos), "Gen_cos_1_U"))
+    results.append(df.Histo1D(("Gen_cos_2_U", "", *bins_cos), "Gen_cos_2_U"))
+    results.append(df.Histo1D(("Gen_phi_U", "", *bins_phiMELA), "Gen_phi_U"))
+
     results.append(df.Histo1D(("Gen_cos_1_D", "", *bins_cos), "Gen_cos_1_D"))
+    results.append(df.Histo1D(("Gen_cos_2_D", "", *bins_cos), "Gen_cos_2_D"))
+    results.append(df.Histo1D(("Gen_phi_D ", "", *bins_phiMELA), "Gen_phi_D"))
 
     results.append(df.Histo1D(("Gen_cos_1", "", *bins_cos), "Gen_cos_1"))
     results.append(df.Histo1D(("Gen_cos_2", "", *bins_cos), "Gen_cos_2"))
     results.append(df.Histo1D(("Gen_phi", "", *bins_phiMELA), "Gen_phi"))
+    
+    results.append(df.Histo1D(("cos_1", "", *bins_cos), "cos_1"))
+    results.append(df.Histo1D(("cos_2", "", *bins_cos), "cos_2"))
+    results.append(df.Histo1D(("phi", "", *bins_phiMELA), "phi"))
+
+
+    
 
     if do_weights: 
         results.append(df.Histo1D(("Gen_cos_1_BSM", "", *bins_cos), "Gen_cos_1", "BSMWeights"))

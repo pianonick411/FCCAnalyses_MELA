@@ -134,6 +134,7 @@ Vec_i get_gen_daus(int mcin, Vec_mc in, Vec_i ind) {
 Vec_tlv get_best_jet_pair(float DesiredMass, float DesiredMRec, float ecm, Vec_tlv Jets){
     // Returns a vector holding, in the first entry, a TLV best matched to the desired mass and making the recoil mass in the event closest to a specified value. 
     // In the second entry, the four momentum of the recoil in the event is returned. 
+    //Entries 3 and 4 are the individual best jets. 
     Vec_tlv result; 
     float MassDiff;
     float MRecDiff;
@@ -174,6 +175,8 @@ Vec_tlv get_best_jet_pair(float DesiredMass, float DesiredMRec, float ecm, Vec_t
     recoil_p4 -= (Jets[GoodJets.first] + Jets[GoodJets.second]); 
     result.push_back(Jets[GoodJets.first] + Jets[GoodJets.second]); 
     result.push_back(recoil_p4);
+    result.push_back(Jets[GoodJets.first]); 
+    result.push_back(Jets[GoodJets.second]); 
     return result; 
 }
 
@@ -797,6 +800,21 @@ Vec_f MELAAngles(Vec_tlv Z1_lept1, int Z1_lept1Id, Vec_tlv Z1_lept2, int Z1_lept
     mVstar = (Z1_lept1[0] + Z1_lept2[0]).M(); 
     mV = (Z2_lept1[0] + Z2_lept2[0]).M(); 
     TUtil::computeAngles(costhetastar, costheta1, costheta2, phi, phi1, Z1_lept1[0], Z1_lept1Id, Z1_lept2[0], Z1_lept2Id, Z2_lept1[0], Z2_lept1Id, Z2_lept2[0], Z2_lept2Id); 
+    Vec_f result = {costhetastar, costheta1, costheta2, phi, phi1, mVstar, mV}; 
+    return result; 
+}
+
+Vec_f MELAAngles(Vec_tlv Z1_lept1, int Z1_lept1Id, Vec_tlv Z1_lept2, int Z1_lept2Id, TLorentzVector Z2_lept1, int Z2_lept1Id, TLorentzVector Z2_lept2, int Z2_lept2Id){    
+    float costhetastar = -99; 
+    float costheta1 = -99; 
+    float costheta2 = -99; 
+    float phi = -99; 
+    float phi1 = -99; 
+    float mVstar = -99; 
+    float mV = -99; 
+    mVstar = (Z1_lept1[0] + Z1_lept2[0]).M(); 
+    mV = (Z2_lept1 + Z2_lept2).M(); 
+    TUtil::computeAngles(costhetastar, costheta1, costheta2, phi, phi1, Z1_lept1[0], Z1_lept1Id, Z1_lept2[0], Z1_lept2Id, Z2_lept1, Z2_lept1Id, Z2_lept2, Z2_lept2Id); 
     Vec_f result = {costhetastar, costheta1, costheta2, phi, phi1, mVstar, mV}; 
     return result; 
 }
