@@ -131,11 +131,62 @@ Vec_i get_gen_daus(int mcin, Vec_mc in, Vec_i ind) {
 // }
 
 
-Vec_tlv get_best_jet_pair(float DesiredMass, float DesiredMRec, float ecm, Vec_tlv Jets){
+// Vec_tlv get_best_jet_pair(float DesiredMass, float DesiredMRec, float ecm, Vec_tlv Jets){
+//     // Returns a vector holding, in the first entry, a TLV best matched to the desired mass and making the recoil mass in the event closest to a specified value. 
+//     // In the second entry, the four momentum of the recoil in the event is returned. 
+//     //Entries 3 and 4 are the individual best jets. 
+//     Vec_tlv result; 
+//     float MassDiff;
+//     float MRecDiff;
+//     float Score;  
+//     float MRec = 9999999999.9; 
+//     float ScoreOld = 9999999999.9; 
+
+//     float chi_squared_frac = 0.4; 
+//     std::pair<int, int> GoodJets; 
+
+    
+//     auto CenterOfMomentum = TLorentzVector(0,0,0,ecm); 
+    
+//     for(size_t i = 0; i < Jets.size(); ++i){
+//         for(size_t j = 1; j < Jets.size(); ++j){
+//             if (j == i){
+//                 continue; 
+//             }
+//             float Mij = (Jets[i] + Jets[j]).M(); 
+//             MassDiff = pow((Mij - DesiredMass), 2);
+
+            
+//             MRec = (CenterOfMomentum - (Jets[i] + Jets[j])).M(); 
+//             MRecDiff = pow((MRec - DesiredMRec), 2); 
+//             Score = (1-chi_squared_frac)*MassDiff + chi_squared_frac*MRecDiff; // The weights on MassDiff and MRecDiff are lifted from Jan's analysis. 
+//            // cout << "This is MassDiff: " << MassDiff << endl;  
+//             if (Score < ScoreOld){
+//                 GoodJets.first = i; 
+//                 GoodJets.second = j; 
+//                 ScoreOld = Score; 
+//             }
+//         }
+
+//     }
+//     // cout << "This is first index: " << GoodJets.first << endl; 
+//     // cout << "This is second index: " << GoodJets.second << endl; 
+//     auto recoil_p4 = TLorentzVector(0,0,0,ecm); 
+//     recoil_p4 -= (Jets[GoodJets.first] + Jets[GoodJets.second]); 
+//     result.push_back(Jets[GoodJets.first] + Jets[GoodJets.second]); 
+//     result.push_back(recoil_p4);
+//     result.push_back(Jets[GoodJets.first]); 
+//     result.push_back(Jets[GoodJets.second]); 
+//     return result; 
+// }
+
+
+std::pair<Vec_tlv, std::pair<int, int>> get_best_jet_pair(float DesiredMass, float DesiredMRec, float ecm, Vec_tlv Jets){
     // Returns a vector holding, in the first entry, a TLV best matched to the desired mass and making the recoil mass in the event closest to a specified value. 
     // In the second entry, the four momentum of the recoil in the event is returned. 
     //Entries 3 and 4 are the individual best jets. 
-    Vec_tlv result; 
+    std::pair<Vec_tlv, Vec_i> result; 
+    Vec_tlv TLVresult; 
     float MassDiff;
     float MRecDiff;
     float Score;  
@@ -143,7 +194,7 @@ Vec_tlv get_best_jet_pair(float DesiredMass, float DesiredMRec, float ecm, Vec_t
     float ScoreOld = 9999999999.9; 
 
     float chi_squared_frac = 0.4; 
-    std::pair<int, int> GoodJets; 
+    std::pair<int, int> GoodJets; //indices of the GoodJets 
 
     
     auto CenterOfMomentum = TLorentzVector(0,0,0,ecm); 
@@ -173,13 +224,16 @@ Vec_tlv get_best_jet_pair(float DesiredMass, float DesiredMRec, float ecm, Vec_t
     // cout << "This is second index: " << GoodJets.second << endl; 
     auto recoil_p4 = TLorentzVector(0,0,0,ecm); 
     recoil_p4 -= (Jets[GoodJets.first] + Jets[GoodJets.second]); 
-    result.push_back(Jets[GoodJets.first] + Jets[GoodJets.second]); 
-    result.push_back(recoil_p4);
-    result.push_back(Jets[GoodJets.first]); 
-    result.push_back(Jets[GoodJets.second]); 
+    TLVresult.push_back(Jets[GoodJets.first] + Jets[GoodJets.second]); 
+    TLVresult.push_back(recoil_p4);
+    TLVresult.push_back(Jets[GoodJets.first]); 
+    TLVresult.push_back(Jets[GoodJets.second]); 
+
+    result.first = TLVresult; 
+    result.second = GoodJets; 
+
     return result; 
 }
-
 
 
 
@@ -217,6 +271,15 @@ Vec_tlv makeLorentzVectors(Vec_mc in) {
     }
     return result;
 }
+
+// Vec_tlv makeLorentzVectors(float jets_px, float jets_py, float jets_pz, float jets_e) {
+//     Vec_tlv result;
+//     TLorentzVector tlv;
+//     tlv.SetPxPyPzE(jets_px, jets_py, jets_pz, jets_e);
+//     result.push_back(tlv);
+//     }
+//     return result;
+// }
 
 Vec_tlv makeLorentzVectors(Vec_f jets_px, Vec_f jets_py, Vec_f jets_pz, Vec_f jets_e) {
     Vec_tlv result;

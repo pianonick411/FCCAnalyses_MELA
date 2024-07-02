@@ -32,7 +32,7 @@ processList = {
     
     # signals
     #'wzp6_ee_nunuH_Hbb_ecm240': {'fraction':1},
-     f'wzp6_ee_qqH_ecm240': {'fraction':1},
+     f'wzp6_ee_qqH_ecm240': {'fraction':0.1},
     # f'wzp6_ee_bbH_Hbb_ecm240': {'fraction':1},
     # f'wzp6_ee_bbH_Hcc_ecm240': {'fraction':1},
     # f'wzp6_ee_bbH_Hss_ecm240': {'fraction':1},
@@ -357,6 +357,8 @@ bins_iso = (500, 0, 5)
 bins_cat = (10, 0, 10)
 bins_resolution = (10000, 0.95, 1.05)
 
+bins_jet_score = (100, 0, 1)
+
 bins_cos = (100, -1.0, 1.0)
 bins_phiMELA = (100, -3.15, 3.15)
 
@@ -532,13 +534,13 @@ def build_graph(df, dataset):
     
     # EXAMPLE OF APPENDING HISTOS FROM JET STUFF TO NORMAL OUTPUT
     for x in range(0, 4):
-        results.append(df.Histo1D(("jet{}_scoreQ{}".format(x, ""), "", *bins_count),"jet{}_scoreQ{}".format(x, "")))
+        results.append(df.Histo1D(("jet{}_scoreQ{}".format(x, ""), "", *bins_jet_score),"jet{}_scoreQ{}".format(x, "")))
         #results.append(df.Histo1D(("jet{}_scoreU{}".format(x, ""), "", *bins_count),"jet{}_scoreU{}".format(x, "")))
         #results.append(df.Histo1D(("jet{}_scoreTAU{}".format(x, ""), "", *bins_count),"jet{}_scoreTAU{}".format(x, "")))
-        results.append(df.Histo1D(("jet{}_scoreB{}".format(x, ""), "", *bins_count),"jet{}_scoreB{}".format(x, "")))
-        results.append(df.Histo1D(("jet{}_scoreC{}".format(x, ""), "", *bins_count),"jet{}_scoreC{}".format(x, "")))
-        results.append(df.Histo1D(("jet{}_scoreS{}".format(x, ""), "", *bins_count),"jet{}_scoreS{}".format(x, "")))
-        results.append(df.Histo1D(("jet{}_scoreG{}".format(x, ""), "", *bins_count),"jet{}_scoreG{}".format(x, "")))
+        results.append(df.Histo1D(("jet{}_scoreB{}".format(x, ""), "", *bins_jet_score),"jet{}_scoreB{}".format(x, "")))
+        results.append(df.Histo1D(("jet{}_scoreC{}".format(x, ""), "", *bins_jet_score),"jet{}_scoreC{}".format(x, "")))
+        results.append(df.Histo1D(("jet{}_scoreS{}".format(x, ""), "", *bins_jet_score),"jet{}_scoreS{}".format(x, "")))
+        results.append(df.Histo1D(("jet{}_scoreG{}".format(x, ""), "", *bins_jet_score),"jet{}_scoreG{}".format(x, "")))
 
     if do_weights:
         df = df.Define("BSMWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgsMCTLV, LHEAssociatedParticleId, qTLV, qBarTLV, BSMVec)')
@@ -604,45 +606,58 @@ def build_graph(df, dataset):
 
     #df = df.Define("RPS_no_mu", "FCCAnalyses::ReconstructedParticle::remove(ReconstructedParticles, muons)")
    
+#Deprecated Jet Building 
+    # #Build Jets: 
+    # df= df.Define("RP_px", "FCCAnalyses::ReconstructedParticle::get_px(ReconstructedParticles)")
+    # df= df.Define("RP_py", "FCCAnalyses::ReconstructedParticle::get_py(ReconstructedParticles)")
+    # df= df.Define("RP_pz", "FCCAnalyses::ReconstructedParticle::get_pz(ReconstructedParticles)")
+    # df = df.Define("RP_e", "FCCAnalyses::ReconstructedParticle::get_e(ReconstructedParticles)")
+    # df = df.Define("pseudo_jets", "FCCAnalyses::JetClusteringUtils::set_pseudoJets(RP_px, RP_py, RP_pz, RP_e)")
 
-    #Build Jets: 
-    df= df.Define("RP_px", "FCCAnalyses::ReconstructedParticle::get_px(ReconstructedParticles)")
-    df= df.Define("RP_py", "FCCAnalyses::ReconstructedParticle::get_py(ReconstructedParticles)")
-    df= df.Define("RP_pz", "FCCAnalyses::ReconstructedParticle::get_pz(ReconstructedParticles)")
-    df = df.Define("RP_e", "FCCAnalyses::ReconstructedParticle::get_e(ReconstructedParticles)")
-    df = df.Define("pseudo_jets", "FCCAnalyses::JetClusteringUtils::set_pseudoJets(RP_px, RP_py, RP_pz, RP_e)")
 
+    # #Do Jet Clustering: 
+    # df = df.Define("clustered_jets", "JetClustering::clustering_ee_kt(3,6,0,10)(pseudo_jets)")
 
-    #Do Jet Clustering: 
-    df = df.Define("clustered_jets", "JetClustering::clustering_ee_kt(3,6,0,10)(pseudo_jets)")
+    # df = df.Define("jets", "FCCAnalyses::JetClusteringUtils::get_pseudoJets(clustered_jets)")
+    # df = df.Define("jetconstituents", "FCCAnalyses::JetClusteringUtils::get_constituents(clustered_jets)") 
+    # df = df.Define("firstJet", "jetconstituents[0]")
+    # results.append(df.Histo1D(("jetconstituents", "", *bins_count), "firstJet"))
+    # df = df.Define("jets_e", "FCCAnalyses::JetClusteringUtils::get_e(jets)")
+    # df = df.Define("jets_px", "FCCAnalyses::JetClusteringUtils::get_px(jets)")
+    # df = df.Define("jets_py", "FCCAnalyses::JetClusteringUtils::get_py(jets)")
+    # df = df.Define("jets_pz", "FCCAnalyses::JetClusteringUtils::get_pz(jets)")
+    # df = df.Define("jets_phi", "FCCAnalyses::JetClusteringUtils::get_phi(jets)")
+    # df = df.Define("jets_pt", "FCCAnalyses::JetClusteringUtils::get_pt(jets)")
+    # df = df.Define("jets_m", "FCCAnalyses::JetClusteringUtils::get_m(jets)")
 
-    df = df.Define("jets", "FCCAnalyses::JetClusteringUtils::get_pseudoJets(clustered_jets)")
-    df = df.Define("jetconstituents", "FCCAnalyses::JetClusteringUtils::get_constituents(clustered_jets)") 
-    df = df.Define("firstJet", "jetconstituents[0]")
-    results.append(df.Histo1D(("jetconstituents", "", *bins_count), "firstJet"))
-    df = df.Define("jets_e", "FCCAnalyses::JetClusteringUtils::get_e(jets)")
-    df = df.Define("jets_px", "FCCAnalyses::JetClusteringUtils::get_px(jets)")
-    df = df.Define("jets_py", "FCCAnalyses::JetClusteringUtils::get_py(jets)")
-    df = df.Define("jets_pz", "FCCAnalyses::JetClusteringUtils::get_pz(jets)")
-    df = df.Define("jets_phi", "FCCAnalyses::JetClusteringUtils::get_phi(jets)")
-    df = df.Define("jets_pt", "FCCAnalyses::JetClusteringUtils::get_pt(jets)")
-    df = df.Define("jets_m", "FCCAnalyses::JetClusteringUtils::get_m(jets)")
+    # #df = df.Filter("jets_pt > 20")
     
-    #df = df.Filter("jets_pt > 20")
-    
 
-    # convert jets to LorentzVectors
-    df = df.Define("jets_tlv", "FCCAnalyses::JHUfunctions::makeLorentzVectors(jets_px, jets_py, jets_pz, jets_e)")
+    # # convert jets to LorentzVectors 
+    # df = df.Define("jets_tlv", "FCCAnalyses::JHUfunctions::makeLorentzVectors(jets_px, jets_py, jets_pz, jets_e)")
+
+    for x in range(0,4): 
+        #df = df.Define("jet{}_tlv".format(x), "ROOT::Math::PxPyPzEVector(jet{}_px, jet{}_py, jet{}_pz, jet{}_e)".format(x,x,x,x))
+        df = df.Define("jet{}_tlv".format(x), "TLorentzVector(jet{}_px, jet{}_py, jet{}_pz, jet{}_e)".format(x,x,x,x))
+    
+    df = df.Define("jets_tlv", "ROOT::VecOps::RVec<TLorentzVector>{jet0_tlv, jet1_tlv, jet2_tlv, jet3_tlv}")
 
     #attempting to do truth matching 
-    df = df.Define("jets_truth", "FCCAnalyses::JHUfunctions::jetTruthFinder(jetconstituents, ReconstructedParticles, Particle, MCRecoAssociations1)") # returns best-matched PDG ID of the jets
+    #df = df.Define("jets_truth", "FCCAnalyses::JHUfunctions::jetTruthFinder(jetconstituents, ReconstructedParticles, Particle, MCRecoAssociations1)") # returns best-matched PDG ID of the jets
 
-    df = df.Define("RP_MC_index", "ReconstructedParticle2MC::getRP2MC_index(MCRecoAssociations0, MCRecoAssociations1, ReconstructedParticles)")
-    results.append(df.Histo1D(("RP_MC_index", "", *bins_count), "RP_MC_index"))
+    #df = df.Define("RP_MC_index", "ReconstructedParticle2MC::getRP2MC_index(MCRecoAssociations0, MCRecoAssociations1, ReconstructedParticles)")
+    #results.append(df.Histo1D(("RP_MC_index", "", *bins_count), "RP_MC_index"))
    
 
     
-    df = df.Define("Best_Jets_Result", "FCCAnalyses::JHUfunctions::get_best_jet_pair(91.2, 125.0, 240, jets_tlv)")
+    df = df.Define("Best_Jets_Pair", "FCCAnalyses::JHUfunctions::get_best_jet_pair(91.2, 125.0, 240, jets_tlv)")
+    df = df.Define("Best_Jets_Results", "Best_Jets_Pair.first")
+
+    df = df.Define("Best_Jets_Idx1", "Best_Jets_Pair.second.first")
+    df = df.Define("Best_Jets_Idx2", "Best_Jets_Pair.second.second")
+
+    df = df.Define("Best_Jet1_PDG", )
+
     df = df.Define("Z_tlv", "Best_Jets_Result[0]")
     df = df.Define("Z_mass", "Z_tlv.M()")
     #df = df.Define("Z_mass", "(jets_tlv[0] + jets_tlv[1]).M()")
@@ -656,7 +671,7 @@ def build_graph(df, dataset):
     df = df.Define("ideal_positron_tlv", "FCCAnalyses::JHUfunctions::makePositronTlv()")
     df = df.Define("ideal_electron_tlv", "FCCAnalyses::JHUfunctions::makeElectronTlv()")
 
-    df = df.Define("Reco_MELA_Angles", "FCCAnalyses::JHUfunctions::MELAAngles(ideal_electron_tlv, 11, ideal_positron_tlv, -11, Best_Jets_Result[2], 1, Best_Jets_Result[3], -1)")
+    df = df.Define("Reco_MELA_Angles", "FCCAnalyses::JHUfunctions::MELAAngles(ideal_electron_tlv, 11, ideal_positron_tlv, -11, Best_Jets_Result[2], 2, Best_Jets_Result[3], -2)")
     df = df.Define("cos_1", "Reco_MELA_Angles[1]")
     df = df.Define("cos_2", "Reco_MELA_Angles[2]")
     df = df.Define("phi", "Reco_MELA_Angles[3]")
@@ -704,8 +719,8 @@ def build_graph(df, dataset):
 
     results.append(df.Histo1D(("recoil_mass", "", *bins_m_Z), "recoil_mass"))
 
-    results.append(df.Histo1D(("jets_pt", "", *bins_p_ll), "jets_pt"))
-    results.append(df.Histo1D(("Jets_No", "", *bins_count), "Jets_No"))
+    #results.append(df.Histo1D(("jets_pt", "", *bins_p_ll), "jets_pt"))
+    #results.append(df.Histo1D(("Jets_No", "", *bins_count), "Jets_No"))
 
     # results.append(df.Histo1D(("full_decays", "", *bins_count), "full_decays"))
     # results.append(df.Histo1D(("full_decays_1", "", *bins_count), "full_decays_1"))
@@ -716,7 +731,7 @@ def build_graph(df, dataset):
     # results.append(df.Histo1D(("zll_m_recoil_m", "", *bins_p_ll), "zll_recoil_m"))
 
   
-    results.append(df.Histo1D(("jets_truth", "", *bins_pdgid), "jets_truth"))
+    #results.append(df.Histo1D(("jets_truth", "", *bins_pdgid), "jets_truth"))
     #results.append(df.Histo1D(("HiggsIdx", "", *bins_count), "HiggsIdx[0]"))
 
     results.append(df.Histo1D(("daughter_higgs", "", *bins_pdgid), "daughter_higgs"))
