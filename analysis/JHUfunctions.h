@@ -21,7 +21,7 @@
 #include "/eos/user/n/nipinto/FCCAnalyzer/JHUGenerator.v7.5.4/JHUGenMELA/MELA/interface/Mela.h"
 
 
-//Mela m = Mela(13, 125, TVar::DEBUG_MECHECK); 
+// Mela m = Mela(13, 125, TVar::DEBUG_MECHECK); 
 
 Mela m = Mela(13, 125); 
 
@@ -199,11 +199,11 @@ std::pair<Vec_tlv, std::pair<int, int>> get_best_jet_pair(float DesiredMass, flo
     
     auto CenterOfMomentum = TLorentzVector(0,0,0,ecm); 
     
-    for(size_t i = 0; i < Jets.size(); ++i){
+    for(size_t i = 0; i < Jets.size() - 1; ++i){
         for(size_t j = 1; j < Jets.size(); ++j){
-            if (j == i){
-                continue; 
-            }
+            if (j > i){
+                
+            
             float Mij = (Jets[i] + Jets[j]).M(); 
             MassDiff = pow((Mij - DesiredMass), 2);
 
@@ -217,6 +217,7 @@ std::pair<Vec_tlv, std::pair<int, int>> get_best_jet_pair(float DesiredMass, flo
                 GoodJets.second = j; 
                 ScoreOld = Score; 
             }
+          }
         }
 
     }
@@ -237,11 +238,6 @@ std::pair<Vec_tlv, std::pair<int, int>> get_best_jet_pair(float DesiredMass, flo
 
 
 
-float yeah(Vec_tlv in){
-    float result = 1.4; 
-    Vec_tlv oops = in; 
-    return result; 
-}
 
 
    
@@ -489,6 +485,54 @@ std::array<float, 2> SetAssocM(Vec_tlv lep1, Vec_tlv lep2){
     std::array<float, 2> AssocM = {lep1MF, lep2MF}; 
     return AssocM; 
 }
+
+
+Vec_f MakeScoreVector(float ScoreQ, float ScoreB, float ScoreC, float ScoreS, float ScoreG){
+    Vec_f result; 
+    result.push_back(ScoreQ); 
+    result.push_back(ScoreB); 
+    result.push_back(ScoreC); 
+    result.push_back(ScoreS); 
+    result.push_back(ScoreG); 
+    return result; 
+}
+
+int PDGFromScoreVec(Vec_f Scores){
+    int PDG; 
+    size_t idx  = ROOT::VecOps::ArgMax(Scores); 
+    if(idx == 0){
+        PDG = 1; 
+    }
+    else if(idx == 1){
+        PDG = 5; 
+    }
+    else if (idx == 2){
+        PDG = 4; 
+    }
+    else if (idx == 3){
+        PDG = 3;
+    }
+    else if (idx == 4){
+        PDG = 21; 
+    }
+    return PDG; 
+}
+
+std::pair<Vec_tlv, std::pair<int, int>> BestJetsWithPDG(Vec_tlv jets, std::vector<Vec_f> scores){
+   std::pair<Vec_tlv, std::pair<int, int>> temp = get_best_jet_pair(91.2, 125.0, 240, jets); 
+   Vec_tlv TLVResult = temp.first; 
+   //Determine PDGs: 
+   int Jet1PDG = PDGFromScoreVec(scores[temp.second.first]); 
+   int Jet2PDG = PDGFromScoreVec(scores[temp.second.second]); 
+
+   std::pair<Vec_tlv, std::pair<int, int>> result; 
+   result.first = TLVResult; 
+   result.second.first = Jet1PDG; 
+   result.second.second = Jet2PDG; 
+   return result; 
+   
+}
+
 
 
 //The calculations for the angles below follow the naming conventions shown in the diagram in this paper: https://arxiv.org/pdf/1208.4018.pdf
@@ -881,6 +925,27 @@ Vec_f MELAAngles(Vec_tlv Z1_lept1, int Z1_lept1Id, Vec_tlv Z1_lept2, int Z1_lept
     Vec_f result = {costhetastar, costheta1, costheta2, phi, phi1, mVstar, mV}; 
     return result; 
 }
+
+Vec_f VHAngles( TLorentzVector p4M11, int Z1_lept1Id, TLorentzVector p4M12, int Z1_lept2Id,
+  TLorentzVector p4M21, int Z2_lept1Id,
+  TLorentzVector p4M22, int Z2_lept2Id,
+  TLorentzVector jet1, int jet1Id,
+  TLorentzVector jet2, int jet2Id,
+  TLorentzVector* injet1, int injet1Id, // Gen. partons in the lab frame
+  TLorentzVector* injet2, int injet2Id
+  ){
+    float costhetastar = -99; 
+    float costheta1 = -99; 
+    float costheta2 = -99; 
+    float phi = -99; 
+    float phi1 = -99; 
+    float mVstar = -99; 
+    float mV = -99; 
+
+    
+
+  }
+
 
 /* WIP that uses same input as weights functions, i.e. the conventions of daughter jets mothers
 Vec_f MELAVHAngles(Vec_tlv Z1_lept1, int Z1_lept1Id, Vec_tlv Z1_lept2, int Z1_lept2Id, Vec_tlv Z2_lept1, int Z2_lept1Id, Vec_tlv Z2_lept2, int Z2_lept2Id){    

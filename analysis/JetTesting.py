@@ -65,11 +65,11 @@ prodTag     = "FCCee/winter2023/IDEA/"
 procDict = "FCCee_procDict_winter2023_IDEA.json"
 
 # additional/custom C++ functions, defined in header files (optional)
-includePaths = ["functions.h", "JHUfunctions.h"]
+includePaths = ["functions.h", "OldJHUfunctions.h"]
 
 
 #Optional: output directory, default is local running directory
-outputDir   = "jetTests/AHH/"
+outputDir   = "jetTests/Test/"
 
 #f"output_{flavor}/"
 
@@ -192,6 +192,7 @@ def build_graph(df, dataset):
     df = df.Define("qPDG", "FCCAnalyses::MCParticle::get_pdg(qVec_MC)")
     df = df.Define("qE","FCCAnalyses::MCParticle::get_e(qVec_MC)" )
     df = df.Define("qTLV", "FCCAnalyses::JHUfunctions::makeLorentzVectors(qVec_MC)")
+    df = df.Define("qPhi", "qTLV[0].Phi()")
     
 
     df = df.Define("qBar", "FCCAnalyses::MCParticle::sel_byIndex(electronDausIdx[0], Particle)")
@@ -199,6 +200,7 @@ def build_graph(df, dataset):
     df = df.Define("qBarPDG", "FCCAnalyses::MCParticle::get_pdg(qBarVec_MC)")
     df = df.Define("qBarE","FCCAnalyses::MCParticle::get_e(qBarVec_MC)" )
     df = df.Define("qBarTLV", "FCCAnalyses::JHUfunctions::makeLorentzVectors(qBarVec_MC)")
+    df = df.Define("qBarPhi", "qBarTLV[0].Phi()")
 
     df = df.Define("higgs_MC", "FCCAnalyses::ZHfunctions::sel_pdgID_idx(25,false)(Particle)")
     
@@ -367,7 +369,7 @@ def build_graph(df, dataset):
     df = df.Define("ideal_positron_tlv", "FCCAnalyses::JHUfunctions::makePositronTlv()")
     df = df.Define("ideal_electron_tlv", "FCCAnalyses::JHUfunctions::makeElectronTlv()")
 
-    df = df.Define("Reco_MELA_Angles", "FCCAnalyses::JHUfunctions::MELAAngles(ideal_electron_tlv, 11, ideal_positron_tlv, -11, Best_Jets_Result[2], 1, Best_Jets_Result[3], -1)")
+    df = df.Define("Reco_MELA_Angles", "FCCAnalyses::JHUfunctions::MELAAngles(ideal_electron_tlv, 11, ideal_positron_tlv, -11, Best_Jets_Result[2], qBarPhi < 0 ? 2 : -2, Best_Jets_Result[3], qBarPhi < 0 ? -2 : 2)")
     df = df.Define("cos_1", "Reco_MELA_Angles[1]")
     df = df.Define("cos_2", "Reco_MELA_Angles[2]")
     df = df.Define("phi", "Reco_MELA_Angles[3]")
@@ -459,10 +461,12 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("higgsPDG", "", *bins_pdgid), "higgsPDG"))
     results.append(df.Histo1D(("qBarPDG", "", *bins_pdgid), "qBarPDG"))
     results.append(df.Histo1D(("qBarE", "", *bins_p_mu), "qBarE"))
+    results.append(df.Histo1D(("qBarPhi", "", *bins_phi), "qBarPhi"))
 
     results.append(df.Histo1D(("qPDG", "", *bins_pdgid), "qPDG"))
     results.append(df.Histo1D(("PDGTest", "", *bins_pdgid), "PDGTest"))
     results.append(df.Histo1D(("qE", "", *bins_p_mu), "qE"))
+    results.append(df.Histo1D(("qPhi", "", *bins_phi), "qPhi"))
 
 
 
