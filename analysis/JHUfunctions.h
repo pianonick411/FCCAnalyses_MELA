@@ -887,6 +887,47 @@ float Weights(std::array<int, 1>  HiggsID, Vec_tlv higgsTlv, std::array<int, 2> 
 }
 
 
+float Weights(std::array<int, 1>  HiggsID, TLorentzVector higgsTlv, std::array<int, 2> AssociatedParticleID, TLorentzVector AssocTlvNeg, TLorentzVector AssocTlvPos, std::vector<pair<string, pair<float, float>>> CouplingInput){
+    SpinZeroCouplings coupl_H; 
+
+    TLorentzVector null;
+    null.SetXYZM(0, 0, 0, 0);
+    float prob = 0.0; 
+
+    set_m_map(); 
+    for (pair<string, pair<float, float>> element : CouplingInput){
+        m_map[element.first][0] = element.second.first; // Real component of the coupling 
+        m_map[element.first][1] = element.second.second; // Imaginary component of the coupling 
+    }
+
+    SimpleParticle_t momSimpleParticle = SimpleParticle_t(0, null); 
+    SimpleParticle_t lepSimpleParticle = SimpleParticle_t(HiggsID[0], higgsTlv); 
+    SimpleParticle_t AssocSimpleParticleNeg = SimpleParticle_t(AssociatedParticleID[0], AssocTlvNeg); 
+    SimpleParticle_t AssocSimpleParticlePos = SimpleParticle_t(AssociatedParticleID[1], AssocTlvPos); 
+
+    
+    SimpleParticleCollection_t*  mothers = new SimpleParticleCollection_t{0};
+    SimpleParticleCollection_t*  leptons = new SimpleParticleCollection_t{lepSimpleParticle};
+    SimpleParticleCollection_t* jets = new SimpleParticleCollection_t{AssocSimpleParticleNeg, AssocSimpleParticlePos};  
+
+    
+
+    m.setInputEvent(leptons, jets, 0, 1); 
+    if(fabs(AssociatedParticleID[0]) == 11 || fabs(AssociatedParticleID[0]) == 13){
+        m.setProcess(TVar::SelfDefine_spin0, TVar::JHUGen, TVar::Lep_ZH); 
+       // cout << "Currently hitting Lep_ZH" << endl; 
+    }
+    else {
+        m.setProcess(TVar::SelfDefine_spin0, TVar::JHUGen, TVar::Had_ZH); 
+       // cout << "Currently hitting Had_ZH" << endl;
+    }
+  //  cout << "This is the value of the ghz1 coupling in the General function: " << m.selfDHzzcoupl[0][0][0] << endl;
+  //   cout << "This is the value of the ghz4 coupling in the General function: " << m.selfDHzzcoupl[0][3][0] << endl;  
+    m.computeProdP(prob, 1); 
+    m.resetInputEvent(); 
+    return prob; 
+}
+
 
 
 

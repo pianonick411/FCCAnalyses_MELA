@@ -1,7 +1,7 @@
 
 # analysis config
 do_gen = False # replace reco-particles by the corresponding gen particle
-do_weights = False
+do_weights = True
 
 jet_flavor = "qq"
 
@@ -366,7 +366,14 @@ bins_jet_score = (100, 0, 1)
 
 bins_cos = (100, -1.0, 1.0)
 bins_phiMELA = (100, -3.15, 3.15)
+bins_dis = (100, 0, 1.0)
 
+bins_D0Minus = (4, 0, 1.0)
+bins_DCP = (4, -1.0, 1.0)
+bins_TemplateMRec = (4, 120, 140)
+
+bins_cos_Template = (10, -1.0, 1.0)
+bins_phi_Template = (10, -3.15, 3.15)
 
 
 # build_graph function that contains the analysis logic, cuts and histograms (mandatory)
@@ -494,6 +501,7 @@ def build_graph(df, dataset):
     df = df.Define("higgsVec_MC", "ROOT::VecOps::RVec<edm4hep::MCParticleData>{higgsMC}")
     df = df.Define("higgsPDG", "FCCAnalyses::MCParticle::get_pdg(higgsVec_MC)")
     df = df.Define("higgsMCTLV", "FCCAnalyses::JHUfunctions::makeLorentzVectors(higgsVec_MC)")
+    df = df.Define("higgs_mass_MC", "higgsMCTLV[0].M()")
     
     df = df.Define("higgsParents", "FCCAnalyses::MCParticle::get_parentid(higgs_MC, Particle,Particle0)")
 
@@ -551,8 +559,8 @@ def build_graph(df, dataset):
     df = df.Define("SMVec", 'FCCAnalyses::JHUfunctions::createCouplingVector({ghz1Pair})')
     
 
-    df = df.Define("ghz4Pair", 'FCCAnalyses::JHUfunctions::makeCouplingPairs("ghz4", 1.0, 0)')
-    df = df.Define("Negghz4Pair", 'FCCAnalyses::JHUfunctions::makeCouplingPairs("ghz4", -1.0, 0)')
+    df = df.Define("ghz4Pair", 'FCCAnalyses::JHUfunctions::makeCouplingPairs("ghz4", 0.864922411, 0)')
+    df = df.Define("Negghz4Pair", 'FCCAnalyses::JHUfunctions::makeCouplingPairs("ghz4", -0.864922411, 0)')
     df = df.Define("BSMVec", 'FCCAnalyses::JHUfunctions::createCouplingVector({ghz4Pair})')
     
     df = df.Define("MixtureVec", 'FCCAnalyses::JHUfunctions::createCouplingVector({ghz1Pair, ghz4Pair})')
@@ -572,10 +580,19 @@ def build_graph(df, dataset):
 
     if do_weights:
         df = df.Define("BSMWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgsMCTLV, LHEAssociatedParticleId, qTLV, qBarTLV, BSMVec)')
+        
         df = df.Define("SMWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgsMCTLV, LHEAssociatedParticleId, qTLV, qBarTLV, SMVec)')
         df = df.Define("MixtureWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgsMCTLV, LHEAssociatedParticleId, qTLV, qBarTLV, MixtureVec)')
         df = df.Define("NegMixtureWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgsMCTLV, LHEAssociatedParticleId, qTLV, qBarTLV, NegMixtureVec)')
+
+        #Normalizing Weights: 
+        df = df.Redefine("BSMWeights", "BSMWeights/SMWeights")
+        df = df.Redefine("MixtureWeights", "MixtureWeights/SMWeights")
+        df = df.Redefine("NegMixtureWeights", "NegMixtureWeights/SMWeights")
         
+        df = df.Define("ScaledUpBSMWeights", "BSMWeights*8.07")
+        #
+        df = df.Define("InterferenceWeights", "MixtureWeights - BSMWeights - 1")
         
 
     # df = df.Define("full_decays_1", "full_decays[1]")
@@ -700,7 +717,8 @@ def build_graph(df, dataset):
     df = df.Define("Z_pt","Z_tlv.Pt()" )
     df = df.Define("Jets_No", "jets_tlv.size()")
 
-    #Set up cutflow variables for quarks: 
+    #Filter events where jets don't match in flavor: 
+    df = df.Filter("Best_Jets_PDG1 == Best_Jets_PDG2")
         
 
 
@@ -724,6 +742,7 @@ def build_graph(df, dataset):
     if jet_flavor == "qq": 
         for x in range(0, 4):
             df = df.Filter("jet{}_scoreB < 0.95".format(x))
+            df = df.Filter("jet{}_scoreG < 0.5".format(x))
             #df = df.Filter("jet{}_scoreQ < 0.4".format(x))
     # if jet_flavor == "bb":
     #     for x in range (0, 4):
@@ -742,7 +761,7 @@ def build_graph(df, dataset):
     df = df.Define("S_cut1", "Best_Jets_PDG1 == 3 ? 1 : 999")
     results.append(df.Histo1D(("S_cutflow", "", *bins_count), "S_cut1"))
 
-    df = df.Define("G_cut1", "Best_Jets_PDG1 == 21 ? 1 : 999")
+    df = df.Define("G_cut1", "Best_Jets_PDG1 == 11 ? 1 : 999")
     results.append(df.Histo1D(("G_cutflow", "", *bins_count), "G_cut1")) 
         
 
@@ -755,7 +774,7 @@ def build_graph(df, dataset):
     df = df.Define("ideal_positron_tlv", "FCCAnalyses::JHUfunctions::makePositronTlv()")
     df = df.Define("ideal_electron_tlv", "FCCAnalyses::JHUfunctions::makeElectronTlv()")
 
-    df = df.Filter("Best_Jets_PDG1 == Best_Jets_PDG2")
+   
 
     df = df.Redefine("Best_Jets_PDG1", "qBarPhi < 0 ? Best_Jets_PDG1 : -Best_Jets_PDG1")
     df = df.Redefine("Best_Jets_PDG2", "qBarPhi < 0 ? -Best_Jets_PDG2 : Best_Jets_PDG2")
@@ -773,9 +792,14 @@ def build_graph(df, dataset):
         df = df.Define("RecoBSMWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, recoil_tlv, LHEAssociatedParticleId, Best_Jets_Result[2], Best_Jets_Result[3], BSMVec)')
         df = df.Define("RecoMixtureWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, recoil_tlv, LHEAssociatedParticleId, Best_Jets_Result[2], Best_Jets_Result[3], MixtureVec)')
         df = df.Define("RecoNegMixtureWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, recoil_tlv, LHEAssociatedParticleId, Best_Jets_Result[2], Best_Jets_Result[3], NegMixtureVec)')
+        df = df.Define("RecoInterferenceWeights", 'RecoMixtureWeights - RecoSMWeights - RecoBSMWeights')
 
         df = df.Define("D_0Minus", 'RecoSMWeights/ (RecoSMWeights + RecoBSMWeights)')
         df = df.Define("D_CP", 'RecoInterferenceWeights/(2*sqrt(RecoSMWeights*RecoBSMWeights))')
+
+        
+    
+
 
      
     #df = df.Filter("Z_pt < 61")
@@ -788,6 +812,11 @@ def build_graph(df, dataset):
 
 
     #Make Histos 
+    
+    
+  
+       
+
     results.append(df.Histo1D(("Gen_cos_1_U", "", *bins_cos), "Gen_cos_1_U"))
     results.append(df.Histo1D(("Gen_cos_2_U", "", *bins_cos), "Gen_cos_2_U"))
     results.append(df.Histo1D(("Gen_phi_U", "", *bins_phiMELA), "Gen_phi_U"))
@@ -825,6 +854,38 @@ def build_graph(df, dataset):
         results.append(df.Histo1D(("Gen_cos_2_BSM", "", *bins_cos), "Gen_cos_2", "BSMWeights"))
         results.append(df.Histo1D(("Gen_phi_BSM", "", *bins_phiMELA), "Gen_phi", "BSMWeights"))
 
+        results.append(df.Histo1D(("Gen_cos_1_Int", "", *bins_cos), "Gen_cos_1", "InterferenceWeights"))
+        results.append(df.Histo1D(("Gen_cos_2_Int", "", *bins_cos), "Gen_cos_2", "InterferenceWeights"))
+        results.append(df.Histo1D(("Gen_phi_Int", "", *bins_phiMELA), "Gen_phi", "InterferenceWeights"))
+
+        results.append(df.Histo1D(("cos_1_BSM", "", *bins_cos), "cos_1", "BSMWeights"))
+        results.append(df.Histo1D(("cos_2_BSM", "", *bins_cos), "cos_2", "BSMWeights"))
+        results.append(df.Histo1D(("phi_BSM", "", *bins_phiMELA), "phi", "BSMWeights"))
+
+        results.append(df.Histo1D(("cos_1_Int", "", *bins_cos), "cos_1", "InterferenceWeights"))
+        results.append(df.Histo1D(("cos_2_Int", "", *bins_cos), "cos_2", "InterferenceWeights"))
+        results.append(df.Histo1D(("phi_Int", "", *bins_phiMELA), "phi", "InterferenceWeights"))
+
+        results.append(df.Histo1D(("D_0Minus", "", *bins_cos), "D_0Minus", "nominal_weight"))
+        results.append(df.Histo1D(("D_0Minus_BSM", "", *bins_cos), "D_0Minus", "BSMWeights"))
+        results.append(df.Histo1D(("D_0Minus_Mix", "", *bins_cos), "D_0Minus", "MixtureWeights"))
+        results.append(df.Histo1D(("D_0Minus_NegMix", "", *bins_cos), "D_0Minus", "NegMixtureWeights"))        
+
+
+        results.append(df.Histo1D(("D_CP", "", *bins_cos), "D_CP", "nominal_weight"))
+        results.append(df.Histo1D(("D_CP_BSM", "", *bins_cos), "D_CP", "BSMWeights"))
+        results.append(df.Histo1D(("D_CP_Mix", "", *bins_cos), "D_CP", "MixtureWeights"))
+        results.append(df.Histo1D(("D_CP_NegMix", "", *bins_cos), "D_CP", "NegMixtureWeights"))
+
+        results.append(df.Histo3D(("Angles_Template_SM", "", *(bins_cos_Template + bins_cos_Template + bins_phi_Template)), "cos_1", "cos_2", "phi", "nominal_weight"))
+        results.append(df.Histo3D(("Angles_Template_BSM", "", *(bins_cos_Template + bins_cos_Template + bins_phi_Template)), "cos_1", "cos_2", "phi", "ScaledUpBSMWeights"))
+        results.append(df.Histo3D(("Angles_Template_SM", "", *(bins_cos_Template + bins_cos_Template + bins_phi_Template)), "cos_1", "cos_2", "phi", "InterferenceWeights"))      
+
+        results.append(df.Histo3D(("ggH_SM_250", "", *(bins_D0Minus + bins_DCP + bins_TemplateMRec)), "D_0Minus", "D_CP", "recoil_mass", "nominal_weight"))
+        results.append(df.Histo3D(("ggH_g4ZZ_250", "", *(bins_D0Minus + bins_DCP + bins_TemplateMRec)), "D_0Minus", "D_CP", "recoil_mass", "ScaledUpBSMWeights"))
+        results.append(df.Histo3D(("ggH_interff_g11g41_250", "", *(bins_D0Minus + bins_DCP + bins_TemplateMRec)), "D_0Minus", "D_CP", "recoil_mass", "InterferenceWeights"))
+
+
 
     results.append(df.Histo1D(("Z_mass", "", *bins_m_Z), "Z_mass"))
     results.append(df.Histo1D(("Z_Mass_MC", "", *bins_m_Z), "Z_Mass_MC"))
@@ -851,6 +912,7 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("daughter_higgs", "", *bins_pdgid), "daughter_higgs"))
     results.append(df.Histo1D(("daughter_higgs0", "", *bins_pdgid), "daughter_higgs0"))
     results.append(df.Histo1D(("HiggsIdx", "", *bins_count), "higgs_MC"))
+    results.append(df.Histo1D(("higgs_mass_MC", "", *bins_recoil), "higgs_mass_MC"))
     # results.append(df.Histo1D(("higgsE", "", *bins_p_mu), "higgsE"))
 
     
@@ -887,7 +949,6 @@ def build_graph(df, dataset):
 
 
     # results.append(df.Histo1D(("full_decays_size", "", *bins_pdgid), "full_decays_size"))
-
 
     weightsum = df.Sum("nominal_weight")
     threading.Thread(target=print_process_id).start()
