@@ -518,19 +518,22 @@ int PDGFromScoreVec(Vec_f Scores){
     return PDG; 
 }
 
-std::pair<Vec_tlv, std::pair<int, int>> BestJetsWithPDG(Vec_tlv jets, std::vector<Vec_f> scores){
+std::tuple<Vec_tlv, std::pair<int, int>, Vec_f, Vec_f> BestJetsWithPDG(Vec_tlv jets, std::vector<Vec_f> scores){
    std::pair<Vec_tlv, std::pair<int, int>> temp = get_best_jet_pair(91.2, 125.0, 240, jets); 
    Vec_tlv TLVResult = temp.first; 
    //Determine PDGs: 
    int Jet1PDG = PDGFromScoreVec(scores[temp.second.first]); 
-   int Jet2PDG = PDGFromScoreVec(scores[temp.second.second]); 
+   int Jet2PDG = PDGFromScoreVec(scores[temp.second.second]);
+   std::pair<int, int> PDGPair; 
+   PDGPair.first = Jet1PDG; 
+   PDGPair.second = Jet2PDG; 
 
-   std::pair<Vec_tlv, std::pair<int, int>> result; 
-   result.first = TLVResult; 
-   result.second.first = Jet1PDG; 
-   result.second.second = Jet2PDG; 
+   Vec_f Jet1Scores = scores[temp.second.first];
+   Vec_f Jet2Scores = scores[temp.second.second];
+
+
+   std::tuple<Vec_tlv, std::pair<int, int>, Vec_f, Vec_f> result {TLVResult, PDGPair, Jet1Scores, Jet2Scores}; 
    return result; 
-   
 }
 
 

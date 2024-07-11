@@ -138,7 +138,7 @@ def build_graph(df, dataset):
     else:
         df = df.Alias("Lepton0", "Electron#0.index")
     
-    df = df.Define("LHEAssociatedParticleId", "FCCAnalyses::JHUfunctions::SetAssocId()")
+    df = df.Define("LHEAssociatedParticleId", "FCCAnalyses::JHUfunctions::SetAssocId(13, -13)")
     
     
     df = df.Define("LHEDaughterId", "FCCAnalyses::JHUfunctions::SetHiggsId()")

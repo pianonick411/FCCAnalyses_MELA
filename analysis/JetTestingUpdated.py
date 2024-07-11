@@ -1,9 +1,9 @@
 
 # analysis config
 do_gen = False # replace reco-particles by the corresponding gen particle
-do_weights = True
+do_weights = False
 
-jet_flavor = "qq"
+jet_flavor = ""
 
 
 import os, copy 
@@ -21,28 +21,43 @@ def print_process_id():
 # list of processes
 processList = {
     # main backgrounds
-    #'p8_ee_WW_ecm240': {'fraction':1},
-    #'p8_ee_ZZ_ecm240': {'fraction':1},
+    #'p8_ee_WW_ecm240': {'fraction':0.001},
+    'p8_ee_ZZ_ecm240': {'fraction':0.001},
     #'wzp6_ee_tautau_ecm240': {'fraction':1},
     #'wzp6_ee_mumu_ecm240' if flavor=="mumu" else 'wzp6_ee_ee_Mee_30_150_ecm240': {'fraction':1},
+    #'wzp6_ee_nunuH_ecm240': {'fraction':0.001},
+    #p8_ee_Zqq_ecm240
 
     # rare backgrounds
     #f'wzp6_egamma_eZ_Z{flavor}_ecm240': {'fraction':1},
     #f'wzp6_gammae_eZ_Z{flavor}_ecm240': {'fraction':1},
     #f'wzp6_gaga_{flavor}_60_ecm240': {'fraction':1},
     #'wzp6_gaga_tautau_60_ecm240': {'fraction':1},
-    #'wzp6_ee_nuenueZ_ecm240': {'fraction':1},
+    #'wzp6_ee_nuenueZ_ecm240': {'fraction':0.001},
+
+    #Backgrounds for Z --> bb\
+
+    #wzp6_ee_bbH_HWW_ecm240
     
     # signals
-    #'wzp6_ee_nunuH_Hbb_ecm240': {'fraction':1},
-     f'wzp6_ee_qqH_ecm240': {'fraction':0.01},
-    #  f'wzp6_ee_bbH_Hbb_ecm240': {'fraction':0.01},
-    #  f'wzp6_ee_bbH_Hcc_ecm240': {'fraction':0.01},
-    #  f'wzp6_ee_bbH_Hss_ecm240': {'fraction':0.01},
-    #  f'wzp6_ee_bbH_Hgg_ecm240': {'fraction':0.01},
+    #'wzp6_ee_nunuH_Hbb_ecm240': {'fraction':0.01},
+    
+    # f'wzp6_ee_qqH_ecm240': {'fraction':0.01},
 
-    # f'wzp6_ee_ccH_Hbb_ecm240': {'fraction':1},
-    # f'wzp6_ee_ccH_Hcc_ecm240': {'fraction':1},
+
+
+    # f'wzp6_ee_bbH_Hbb_ecm240': {'fraction':0.01},
+    # f'wzp6_ee_bbH_Hcc_ecm240': {'fraction':0.01},
+    # f'wzp6_ee_bbH_Hss_ecm240': {'fraction':0.01},
+    # f'wzp6_ee_bbH_Hgg_ecm240': {'fraction':0.01},
+    # 'wzp6_ee_bbH_Htautau_ecm240':{'fraction':0.01},
+    # 'wzp6_ee_bbH_HZZ_ecm240':{'fraction':0.01},
+    # 'wzp6_ee_bbH_HWW_ecm240':{'fraction':0.01},
+
+
+
+    #f'wzp6_ee_ccH_Hbb_ecm240': {'fraction':0.01},
+    #f'wzp6_ee_ccH_Hcc_ecm240': {'fraction':0.01},
     # f'wzp6_ee_ccH_Hss_ecm240': {'fraction':1},
     # f'wzp6_ee_ccH_Hgg_ecm240': {'fraction':1},
 
@@ -72,7 +87,7 @@ includePaths = ["functions.h", "JHUfunctions.h"]
 
 
 #Optional: output directory, default is local running directory
-outputDir   = "jetTests/AHH/"
+outputDir   = "jetTests/Test/"
 
 #f"output_{flavor}/"
 
@@ -117,6 +132,9 @@ jetClusteringHelper = None
 def jet_sequence(df, collections, output_branches, tag=""):
 
     ## define jet clustering parameters
+    df = df.Define("missingEnergy", "FCCAnalyses::ZHfunctions::missingEnergy(240., ReconstructedParticles)")
+    df = df.Define("cosTheta_miss", "FCCAnalyses::ZHfunctions::get_cosTheta_miss(missingEnergy)")
+
     njets = 4
 
     jetClusteringHelper = ExclusiveJetClusteringHelper(collections["PFParticles"], njets, tag)
@@ -125,6 +143,7 @@ def jet_sequence(df, collections, output_branches, tag=""):
     df = jetClusteringHelper.define(df)
 
     output_branches += jetClusteringHelper.outputBranches()
+   
 
     jets_p4 = "tlv_jets"
     mjj = "mjj"
@@ -243,6 +262,8 @@ def analysis_sequence(df, collections, analysis_branches, tag=""):
     df =  df.Define("event_nmu{}".format(anatag), "muons{}.size()".format(anatag))
     df = df.Define("muons_p{}".format(anatag), "ReconstructedParticle::get_p(muons{})[0]".format(anatag))
 
+    #Missing Energy: 
+    
     
     for x in range(0, 3):
         for y in range(1, 4):
@@ -375,6 +396,8 @@ bins_TemplateMRec = (4, 120, 140)
 bins_cos_Template = (10, -1.0, 1.0)
 bins_phi_Template = (10, -3.15, 3.15)
 
+bins_E = (240, 0, 240)
+
 
 # build_graph function that contains the analysis logic, cuts and histograms (mandatory)
 def build_graph(df, dataset):
@@ -406,7 +429,7 @@ def build_graph(df, dataset):
     }
 
     collections = copy.deepcopy(collections1)
-    #collections["PFParticles"] = "ReconstructedParticles"
+    collections["PFParticles"] = "ReconstructedParticles"
     df = jet_sequence(df, collections,output_branches)
     print(output_branches)
     res_tag=""
@@ -586,9 +609,9 @@ def build_graph(df, dataset):
         df = df.Define("NegMixtureWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgsMCTLV, LHEAssociatedParticleId, qTLV, qBarTLV, NegMixtureVec)')
 
         #Normalizing Weights: 
-        df = df.Redefine("BSMWeights", "BSMWeights/SMWeights")
-        df = df.Redefine("MixtureWeights", "MixtureWeights/SMWeights")
-        df = df.Redefine("NegMixtureWeights", "NegMixtureWeights/SMWeights")
+        # df = df.Redefine("BSMWeights", "BSMWeights/SMWeights")
+        # df = df.Redefine("MixtureWeights", "MixtureWeights/SMWeights")
+        # df = df.Redefine("NegMixtureWeights", "NegMixtureWeights/SMWeights")
         
         df = df.Define("ScaledUpBSMWeights", "BSMWeights*8.07")
         #
@@ -638,17 +661,38 @@ def build_graph(df, dataset):
     df = df.Define("muons_no", "FCCAnalyses::ReconstructedParticle::get_n(muons)")
     df = df.Define("electrons_no", "FCCAnalyses::ReconstructedParticle::get_n(electrons)")
 
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut0", "nominal_weight"))
+
+    #########################################################################################################
+    ### Cut 1: Less than or equal to 2 electrons                                                            #
+    #########################################################################################################
     df = df.Filter("electrons_no <= 2")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut1", "nominal_weight"))
+
+    #########################################################################################################
+    ### Cut2: Electrons should have p < 20                                                                  #
+    #########################################################################################################
     df = df.Filter("electrons_p < 20")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut2", "nominal_weight"))
+
+    #########################################################################################################
+    ### Cut 3: Less than or equal to 2 muons                                                            #
+    #########################################################################################################
     df = df.Filter("muons_no <= 2")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut3", "nominal_weight"))
+
+    #########################################################################################################
+    ### Cut4: Muons should have p < 20                                                                  #
+    #########################################################################################################
     df = df.Filter("muons_p < 20")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut4", "nominal_weight"))
+
     
     results.append(df.Histo1D(("electrons_no", "", *bins_count), "electrons_no"))
 
     results.append(df.Histo1D(("muons_no", "", *bins_count), "muons_no"))
 
-    #df = df.Define("missingEnergy", "FCCAnalyses::ZHfunctions::missingEnergy(240., ReconstructedParticles)")
-    #results.append(df.Histo1D(("missingEnergy", "", *bins_p_ll), "missingEnergy"))
+
 
 
   
@@ -701,13 +745,56 @@ def build_graph(df, dataset):
 
     
     df = df.Define("Best_Jets_Pair", "FCCAnalyses::JHUfunctions::BestJetsWithPDG(jets_tlv, VectorOfScoreVectors)")
-    df = df.Define("Best_Jets_Result", "Best_Jets_Pair.first")
+    df = df.Define("Best_Jets_Result", "get<0>(Best_Jets_Pair)")
 
-    df = df.Define("Best_Jets_PDG1", "Best_Jets_Pair.second.first != 21 ? Best_Jets_Pair.second.first : 11")
-    df = df.Define("Best_Jets_PDG2", "Best_Jets_Pair.second.second != 21 ? Best_Jets_Pair.second.second : 11")
+    df = df.Define("PDGPair", "get<1>(Best_Jets_Pair)")
+
+    df = df.Define("Best_Jets_PDG1", "PDGPair.first")
+    df = df.Define("Best_Jets_PDG2", "PDGPair.second")
+
+    df = df.Define("Best_Jets1_ScoreVec", "get<2>(Best_Jets_Pair)")
+    df = df.Define("Best_Jets2_ScoreVec", "get<3>(Best_Jets_Pair)")
+
+    df = df.Define("Best_Jets1_ScoreQ", "Best_Jets1_ScoreVec[0]")
+    df = df.Define("Best_Jets1_ScoreB", "Best_Jets1_ScoreVec[1]")
+    df = df.Define("Best_Jets1_ScoreC", "Best_Jets1_ScoreVec[2]")
+    df = df.Define("Best_Jets1_ScoreS", "Best_Jets1_ScoreVec[3]")
+    df = df.Define("Best_Jets1_ScoreG", "Best_Jets1_ScoreVec[4]")
+
+    results.append(df.Histo1D(("Best_Jets1_ScoreQ", "", *bins_jet_score), "Best_Jets1_ScoreQ"))
+    results.append(df.Histo1D(("Best_Jets1_ScoreB", "", *bins_jet_score), "Best_Jets1_ScoreB"))
+    results.append(df.Histo1D(("Best_Jets1_ScoreC", "", *bins_jet_score), "Best_Jets1_ScoreC"))
+    results.append(df.Histo1D(("Best_Jets1_ScoreS", "", *bins_jet_score), "Best_Jets1_ScoreS"))
+    results.append(df.Histo1D(("Best_Jets1_ScoreG", "", *bins_jet_score), "Best_Jets1_ScoreG"))
+
+
+    df = df.Define("Best_Jets2_ScoreQ", "Best_Jets2_ScoreVec[0]")
+    df = df.Define("Best_Jets2_ScoreB", "Best_Jets2_ScoreVec[1]")
+    df = df.Define("Best_Jets2_ScoreC", "Best_Jets2_ScoreVec[2]")
+    df = df.Define("Best_Jets2_ScoreS", "Best_Jets2_ScoreVec[3]")
+    df = df.Define("Best_Jets2_ScoreG", "Best_Jets2_ScoreVec[4]")
+
+    results.append(df.Histo1D(("Best_Jets2_ScoreQ", "", *bins_jet_score), "Best_Jets2_ScoreQ"))
+    results.append(df.Histo1D(("Best_Jets2_ScoreB", "", *bins_jet_score), "Best_Jets2_ScoreB"))
+    results.append(df.Histo1D(("Best_Jets2_ScoreC", "", *bins_jet_score), "Best_Jets2_ScoreC"))
+    results.append(df.Histo1D(("Best_Jets2_ScoreS", "", *bins_jet_score), "Best_Jets2_ScoreS"))
+    results.append(df.Histo1D(("Best_Jets2_ScoreG", "", *bins_jet_score), "Best_Jets2_ScoreG"))
+
+    results.append(df.Histo2D(("Jet1_B_vs_Q", "", *(bins_jet_score + bins_jet_score)), "Best_Jets1_ScoreQ", "Best_Jets1_ScoreB"))
+    results.append(df.Histo2D(("Jet1_C_vs_Q", "", *(bins_jet_score + bins_jet_score)), "Best_Jets1_ScoreQ", "Best_Jets1_ScoreC"))
+    results.append(df.Histo2D(("Jet1_S_vs_Q", "", *(bins_jet_score + bins_jet_score)), "Best_Jets1_ScoreQ", "Best_Jets1_ScoreS"))
+    results.append(df.Histo2D(("Jet1_G_vs_Q", "", *(bins_jet_score + bins_jet_score)), "Best_Jets1_ScoreQ", "Best_Jets1_ScoreG"))
+
+    results.append(df.Histo2D(("Jet2_B_vs_Q", "", *(bins_jet_score + bins_jet_score)), "Best_Jets2_ScoreQ", "Best_Jets2_ScoreB"))
+    results.append(df.Histo2D(("Jet2_C_vs_Q", "", *(bins_jet_score + bins_jet_score)), "Best_Jets2_ScoreQ", "Best_Jets2_ScoreC"))
+    results.append(df.Histo2D(("Jet2_S_vs_Q", "", *(bins_jet_score + bins_jet_score)), "Best_Jets2_ScoreQ", "Best_Jets2_ScoreS"))
+    results.append(df.Histo2D(("Jet2_G_vs_Q", "", *(bins_jet_score + bins_jet_score)), "Best_Jets2_ScoreQ", "Best_Jets2_ScoreG"))
+
+
 
     results.append(df.Histo1D(("Best_Jets_PDG1", "", *bins_pdgid), "Best_Jets_PDG1"))
     results.append(df.Histo1D(("Best_Jets_PDG2", "", *bins_pdgid), "Best_Jets_PDG2"))
+    results.append(df.Histo2D(("Jet1PDG_vs_Jet2PDG", "", *(bins_pdgid + bins_pdgid)), "Best_Jets_PDG1", "Best_Jets_PDG2"))
 
 
 
@@ -715,10 +802,17 @@ def build_graph(df, dataset):
     df = df.Define("Z_mass", "Z_tlv.M()")
     #df = df.Define("Z_mass", "(jets_tlv[0] + jets_tlv[1]).M()")
     df = df.Define("Z_pt","Z_tlv.Pt()" )
+    df = df.Define("Z_p", "Z_tlv.P()")
     df = df.Define("Jets_No", "jets_tlv.size()")
 
-    #Filter events where jets don't match in flavor: 
+    ####################
+    ### Cut 5: Enforce same flavor jets from the z
+    #################### 
     df = df.Filter("Best_Jets_PDG1 == Best_Jets_PDG2")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut5", "nominal_weight"))
+    
+    df = df.Define("recoil_tlv", "Best_Jets_Result[1]")
+    df = df.Define("recoil_mass", "recoil_tlv.M()")
         
 
 
@@ -738,15 +832,17 @@ def build_graph(df, dataset):
     df = df.Define("G_cut0", "Best_Jets_PDG1 == 21 ? 0 : 999")
     results.append(df.Histo1D(("G_cutflow", "", *bins_count), "G_cut0"))
 
-    #Cutting on jet score: 
+    ####################
+    ### Cut 6: Jet Score (Flavor Specific)
+    ####################
     if jet_flavor == "qq": 
-        for x in range(0, 4):
-            df = df.Filter("jet{}_scoreB < 0.95".format(x))
-            df = df.Filter("jet{}_scoreG < 0.5".format(x))
-            #df = df.Filter("jet{}_scoreQ < 0.4".format(x))
-    # if jet_flavor == "bb":
-    #     for x in range (0, 4):
-    #         df = df.Filter("jet{}_scoreB  >= 0.5".format(x))
+        df = df.Filter("Best_Jets1_ScoreQ > 0.01")
+        df = df.Filter("Best_Jets2_ScoreQ > 0.01")
+            #df = df.Filter("jet{}_scoreQ > 0.1".format(x))
+    if jet_flavor == "bb":
+        df = df.Filter("Best_Jets1_ScoreB > 0.9")
+        df = df.Filter("Best_Jets2_ScoreB > 0.9")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6", "nominal_weight"))
 
     #Number of each type of jet after score cut:
     df = df.Define("Q_cut1", "Best_Jets_PDG1 == 1 ? 1 : 999")
@@ -763,12 +859,34 @@ def build_graph(df, dataset):
 
     df = df.Define("G_cut1", "Best_Jets_PDG1 == 11 ? 1 : 999")
     results.append(df.Histo1D(("G_cutflow", "", *bins_count), "G_cut1")) 
+
+
+    ####################
+    ### Cut 7: Z-Mass
+    ####################
+    df = df.Filter("Z_mass > 80 && Z_mass < 100")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7", "nominal_weight"))
+
+
+    
+    ####################
+    ### Cut 8: Z-Momentum  
+    ####################
+    df = df.Filter("Z_p >= 40 && Z_p <= 60")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8", "nominal_weight"))
+    
+
+    ####################
+    ### Cut 9: Visible Energy 
+    ####################
+    df = df.Filter("vis_E > 150")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut9", "nominal_weight"))
+    
         
 
 
 
-    df = df.Define("recoil_tlv", "Best_Jets_Result[1]")
-    df = df.Define("recoil_mass", "recoil_tlv.M()")
+    
 
     #Making Reco-Level Angles 
     df = df.Define("ideal_positron_tlv", "FCCAnalyses::JHUfunctions::makePositronTlv()")
@@ -784,7 +902,11 @@ def build_graph(df, dataset):
     df = df.Define("cos_2", "Reco_MELA_Angles[2]")
     df = df.Define("phi", "Reco_MELA_Angles[3]")
 
+
+
     df = df.Define("cos_2_corrected", "cos_2 == 0 ? 999 : cos_2")
+    
+    
 
     if do_weights: 
         #Making Reco-Level probabilities for discriminants 
@@ -815,8 +937,8 @@ def build_graph(df, dataset):
     
     
   
-       
-
+    
+    results.append(df.Histo1D(("vis_E", "", *bins_E), "vis_E"))
     results.append(df.Histo1D(("Gen_cos_1_U", "", *bins_cos), "Gen_cos_1_U"))
     results.append(df.Histo1D(("Gen_cos_2_U", "", *bins_cos), "Gen_cos_2_U"))
     results.append(df.Histo1D(("Gen_phi_U", "", *bins_phiMELA), "Gen_phi_U"))
@@ -846,6 +968,8 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("cos_2_corrected", "", *bins_cos), "cos_2_corrected"))
     results.append(df.Histo1D(("phi", "", *bins_phiMELA), "phi"))
 
+    
+
 
     
 
@@ -857,6 +981,15 @@ def build_graph(df, dataset):
         results.append(df.Histo1D(("Gen_cos_1_Int", "", *bins_cos), "Gen_cos_1", "InterferenceWeights"))
         results.append(df.Histo1D(("Gen_cos_2_Int", "", *bins_cos), "Gen_cos_2", "InterferenceWeights"))
         results.append(df.Histo1D(("Gen_phi_Int", "", *bins_phiMELA), "Gen_phi", "InterferenceWeights"))
+
+        results.append(df.Histo1D(("cos_1_SM", "", *bins_cos), "cos_1", "nominal_weight"))
+        results.append(df.Histo1D(("cos_2_SM", "", *bins_cos), "cos_2", "nominal_weight"))
+        results.append(df.Histo1D(("phi_SM", "", *bins_phiMELA), "phi", "nominal_weight"))
+
+        results.append(df.Histo1D(("cos_1_SM", "", *bins_cos), "cos_1", "SMWeights"))
+        results.append(df.Histo1D(("cos_2_SM", "", *bins_cos), "cos_2", "SMWeights"))
+        results.append(df.Histo1D(("phi_SM", "", *bins_phiMELA), "phi", "SMWeights"))
+
 
         results.append(df.Histo1D(("cos_1_BSM", "", *bins_cos), "cos_1", "BSMWeights"))
         results.append(df.Histo1D(("cos_2_BSM", "", *bins_cos), "cos_2", "BSMWeights"))
@@ -877,9 +1010,9 @@ def build_graph(df, dataset):
         results.append(df.Histo1D(("D_CP_Mix", "", *bins_cos), "D_CP", "MixtureWeights"))
         results.append(df.Histo1D(("D_CP_NegMix", "", *bins_cos), "D_CP", "NegMixtureWeights"))
 
-        results.append(df.Histo3D(("Angles_Template_SM", "", *(bins_cos_Template + bins_cos_Template + bins_phi_Template)), "cos_1", "cos_2", "phi", "nominal_weight"))
-        results.append(df.Histo3D(("Angles_Template_BSM", "", *(bins_cos_Template + bins_cos_Template + bins_phi_Template)), "cos_1", "cos_2", "phi", "ScaledUpBSMWeights"))
-        results.append(df.Histo3D(("Angles_Template_SM", "", *(bins_cos_Template + bins_cos_Template + bins_phi_Template)), "cos_1", "cos_2", "phi", "InterferenceWeights"))      
+        results.append(df.Histo3D(("Angles_Template_SM", "", *(bins_cos_Template + bins_cos_Template + bins_phi_Template)), "cos_1", "cos_2_corrected", "phi", "nominal_weight"))
+        results.append(df.Histo3D(("Angles_Template_BSM", "", *(bins_cos_Template + bins_cos_Template + bins_phi_Template)), "cos_1", "cos_2_corrected", "phi", "ScaledUpBSMWeights"))
+        results.append(df.Histo3D(("Angles_Template_Int", "", *(bins_cos_Template + bins_cos_Template + bins_phi_Template)), "cos_1", "cos_2_corrected", "phi", "InterferenceWeights"))      
 
         results.append(df.Histo3D(("ggH_SM_250", "", *(bins_D0Minus + bins_DCP + bins_TemplateMRec)), "D_0Minus", "D_CP", "recoil_mass", "nominal_weight"))
         results.append(df.Histo3D(("ggH_g4ZZ_250", "", *(bins_D0Minus + bins_DCP + bins_TemplateMRec)), "D_0Minus", "D_CP", "recoil_mass", "ScaledUpBSMWeights"))
@@ -891,6 +1024,7 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("Z_Mass_MC", "", *bins_m_Z), "Z_Mass_MC"))
     results.append(df.Histo1D(("Z_pt", "", *bins_p_ll), "Z_pt"))
     results.append(df.Histo1D(("Z_pt_MC", "", *bins_p_ll), "Z_pt_MC"))
+    results.append(df.Histo1D(("Z_p", "", *bins_p_ll), "Z_p"))
 
     results.append(df.Histo1D(("recoil_mass", "", *bins_m_Z), "recoil_mass"))
 
@@ -952,6 +1086,6 @@ def build_graph(df, dataset):
 
     weightsum = df.Sum("nominal_weight")
     threading.Thread(target=print_process_id).start()
-    return results, analysis_branches
+    return results, weightsum 
 threading.Thread(target=print_process_id).start()
     
