@@ -21,7 +21,7 @@ def print_process_id():
 # list of processes
 processList = {
     # main backgrounds
-    #'p8_ee_WW_ecm240': {'fraction':0.001},
+    'p8_ee_WW_ecm240': {'fraction':0.001},
     'p8_ee_ZZ_ecm240': {'fraction':0.001},
     #'wzp6_ee_tautau_ecm240': {'fraction':1},
     #'wzp6_ee_mumu_ecm240' if flavor=="mumu" else 'wzp6_ee_ee_Mee_30_150_ecm240': {'fraction':1},
@@ -46,7 +46,7 @@ processList = {
 
 
 
-    # f'wzp6_ee_bbH_Hbb_ecm240': {'fraction':0.01},
+    #f'wzp6_ee_bbH_Hbb_ecm240': {'fraction':0.01},
     # f'wzp6_ee_bbH_Hcc_ecm240': {'fraction':0.01},
     # f'wzp6_ee_bbH_Hss_ecm240': {'fraction':0.01},
     # f'wzp6_ee_bbH_Hgg_ecm240': {'fraction':0.01},
@@ -805,14 +805,21 @@ def build_graph(df, dataset):
     df = df.Define("Z_p", "Z_tlv.P()")
     df = df.Define("Jets_No", "jets_tlv.size()")
 
-    ####################
-    ### Cut 5: Enforce same flavor jets from the z
-    #################### 
-    df = df.Filter("Best_Jets_PDG1 == Best_Jets_PDG2")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut5", "nominal_weight"))
-    
     df = df.Define("recoil_tlv", "Best_Jets_Result[1]")
     df = df.Define("recoil_mass", "recoil_tlv.M()")
+
+    ####################
+    ### Cut 5: WW and ZZ Rejection 
+    #################### 
+
+    df = df.Define("W_chi", "sqrt( pow((Z_mass - 80.38) , 2) + pow( recoil_mass - 80.38, 2))")
+    df = df.Define("Z_chi", "sqrt( pow((Z_mass - 91.2) , 2) + pow( recoil_mass - 91.2, 2))")
+    results.append(df.Histo1D(("W_chi", "", *bins_m_Z), "W_chi"))
+    results.append(df.Histo1D(("Z_chi", "", *bins_m_Z), "Z_chi"))
+    df = df.Filter("W_chi > 10 && Z_chi > 10")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut5", "nominal_weight"))
+    
+    
         
 
 
