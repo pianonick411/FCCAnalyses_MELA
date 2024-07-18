@@ -224,7 +224,7 @@ std::pair<Vec_tlv, std::pair<int, int>> get_best_jet_pair(float DesiredMass, flo
             if (j > i){
                 int Jet1PDG = PDGFromScoreVec(scores[i]); 
                 int Jet2PDG = PDGFromScoreVec(scores[j]);
-                if (Jet1PDG != Jet2PDG){
+                if (Jet1PDG != Jet2PDG || Jet1PDG == 21 || Jet2PDG == 21){
                     continue; 
                 }
                    

@@ -21,8 +21,8 @@ def print_process_id():
 # list of processes
 processList = {
     # main backgrounds
-    'p8_ee_WW_ecm240': {'fraction':0.0001},
-    'p8_ee_ZZ_ecm240': {'fraction':0.001},
+    #'p8_ee_WW_ecm240': {'fraction':0.0001},
+    #'p8_ee_ZZ_ecm240': {'fraction':0.001},
     #'wzp6_ee_tautau_ecm240': {'fraction':1},
     #'wzp6_ee_mumu_ecm240' if flavor=="mumu" else 'wzp6_ee_ee_Mee_30_150_ecm240': {'fraction':1},
     #'wzp6_ee_nunuH_ecm240': {'fraction':0.001},
@@ -45,13 +45,13 @@ processList = {
 
 
 
-  f'wzp6_ee_bbH_Hbb_ecm240': {'fraction':0.01},
+ f'wzp6_ee_bbH_Hbb_ecm240': {'fraction':0.01},
 #   f'wzp6_ee_bbH_Hcc_ecm240': {'fraction':0.01},
 #     f'wzp6_ee_bbH_Hss_ecm240': {'fraction':0.01},
 #     f'wzp6_ee_bbH_Hgg_ecm240': {'fraction':0.01},
 #     'wzp6_ee_bbH_Htautau_ecm240':{'fraction':0.01},
-   'wzp6_ee_bbH_HZZ_ecm240':{'fraction':0.01},
-   'wzp6_ee_bbH_HWW_ecm240':{'fraction':0.01},
+  'wzp6_ee_bbH_HZZ_ecm240':{'fraction':0.01},
+  'wzp6_ee_bbH_HWW_ecm240':{'fraction':0.01},
 
 
 
@@ -71,10 +71,6 @@ processList = {
 #    'wzp6_ee_ssH_HZZ_ecm240':{'fraction':0.01},
 #    'wzp6_ee_ssH_HWW_ecm240':{'fraction':0.01},
 
-    # f'wzp6_ee_qqH_Hbb_ecm240': {'fraction':1},
-    # f'wzp6_ee_qqH_Hcc_ecm240': {'fraction':1},
-    # f'wzp6_ee_qqH_Hss_ecm240': {'fraction':1},
-    # f'wzp6_ee_qqH_Hgg_ecm240': {'fraction':1},
 }
 
 
@@ -92,7 +88,7 @@ includePaths = ["functions.h", "JHUfunctions.h"]
 
 
 #Optional: output directory, default is local running directory
-outputDir   = "jetTests/July18TestsSet1/"
+outputDir   = "jetTests/July18TestsSet2/"
 
 #f"output_{flavor}/"
 
@@ -707,6 +703,7 @@ def build_graph(df, dataset):
     ####################
     ### Cut 5: Visible Energy and Visible Mass 
     ####################
+    results.append(df.Histo1D(("vis_theta_nmone", "", *bins_theta), "vis_theta", "nominal_weight"))
     df = df.Filter("vis_M > 150")
     df = df.Filter("vis_E > 150")
     df = df.Filter("vis_theta > 0.15 && vis_theta < 3.0")
@@ -715,6 +712,11 @@ def build_graph(df, dataset):
 
     for x in range(1, 9):
         results.append(df.Histo1D(("d_{}{}_nmone".format(x, x+1), "", *bins_dij), "d_{}{}".format(x,x+1)))
+
+    
+
+
+    
     
 
 
@@ -839,34 +841,34 @@ def build_graph(df, dataset):
     df = df.Define("recoil_tlv", "Best_Jets_Result[1]")
     df = df.Define("recoil_mass", "recoil_tlv.M()")
 
+    df = df.Define("recoil_mass_corrected", "recoil_mass + Z_mass - 91.187")
+       
+
     ####################
-    ### Cut 6: Z-Mass
-    ####################
-    results.append(df.Histo1D(("Z_mass_nmone", "", *bins_m_Z), "Z_mass", "nominal_weight"))
-    df = df.Filter("Z_mass > 80 && Z_mass < 100")
+    ### Cut 6: recoil mass: 
+    #################### 
+    results.append(df.Histo1D(("recoil_mass_nmone", "", *bins_m_Z), "recoil_mass"))
+    results.append(df.Histo1D(("recoil_mass_corrected_nmone", "", *bins_m_Z), "recoil_mass_corrected"))
+    df.Filter("recoil_mass > 110 && recoil_mass < 145")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6", "nominal_weight"))
 
 
+    ####################
+    ### Cut 7: Z-Mass
+    ####################
+    results.append(df.Histo1D(("Z_mass_nmone", "", *bins_m_Z), "Z_mass", "nominal_weight"))
+    df = df.Filter("Z_mass > 60 && Z_mass < 100")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7", "nominal_weight"))
+
+
     
     ####################
-    ### Cut 7: Z-Momentum  
+    ### Cut 8: Z-Momentum  
     ####################
     results.append(df.Histo1D(("Z_p_nmone", "", *bins_p_ll), "Z_p"))
     df = df.Filter("Z_p >= 20 && Z_p <= 60")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7", "nominal_weight"))
-    
-
-    
-   
-
-    ####################
-    ### Cut 8: recoil mass: 
-    #################### 
-    results.append(df.Histo1D(("recoil_mass_nmone", "", *bins_m_Z), "recoil_mass"))
-    df.Filter("recoil_mass > 110 && recoil_mass < 145")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8", "nominal_weight"))
-
-
+    
 
     ####################
     ### Cut 9: WW and ZZ Rejection 
@@ -882,13 +884,9 @@ def build_graph(df, dataset):
     df = df.Filter("W_chi > 10")
     df = df.Filter("Z_chi > 10")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut9", "nominal_weight"))
-    results.append(df.Histo1D(("chi", "", *bins_m_Z), "chi"))
-    results.append(df.Histo1D(("W_chi", "", *bins_m_Z), "W_chi"))
-    results.append(df.Histo1D(("Z_chi", "", *bins_m_Z), "Z_chi"))
     
     
-        
-
+    
 
     #Number of each type of jet before score cut, just going off of first good jet for now:
     df = df.Define("Q_cut0", "Best_Jets_PDG1 == 1 ? 0 : 999")
@@ -992,7 +990,10 @@ def build_graph(df, dataset):
     
     
   
-    
+    results.append(df.Histo1D(("chi", "", *bins_m_Z), "chi"))
+    results.append(df.Histo1D(("W_chi", "", *bins_m_Z), "W_chi"))
+    results.append(df.Histo1D(("Z_chi", "", *bins_m_Z), "Z_chi"))
+
     results.append(df.Histo1D(("vis_E", "", *bins_E), "vis_E"))
     results.append(df.Histo1D(("Gen_cos_1_U", "", *bins_cos), "Gen_cos_1_U"))
     results.append(df.Histo1D(("Gen_cos_2_U", "", *bins_cos), "Gen_cos_2_U"))
@@ -1082,6 +1083,7 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("Z_p", "", *bins_p_ll), "Z_p"))
 
     results.append(df.Histo1D(("recoil_mass", "", *bins_m_Z), "recoil_mass"))
+    results.append(df.Histo1D(("recoil_mass_corrected", "", *bins_m_Z), "recoil_mass_corrected"))
 
     #results.append(df.Histo1D(("jets_pt", "", *bins_p_ll), "jets_pt"))
     #results.append(df.Histo1D(("Jets_No", "", *bins_count), "Jets_No"))
