@@ -180,12 +180,32 @@ Vec_i get_gen_daus(int mcin, Vec_mc in, Vec_i ind) {
 //     return result; 
 // }
 
+int PDGFromScoreVec(Vec_f Scores){
+    int PDG; 
+    size_t idx  = ROOT::VecOps::ArgMax(Scores); 
+    if(idx == 0){
+        PDG = 1; 
+    }
+    else if(idx == 1){
+        PDG = 5; 
+    }
+    else if (idx == 2){
+        PDG = 4; 
+    }
+    else if (idx == 3){
+        PDG = 3;
+    }
+    else if (idx == 4){
+        PDG = 21; 
+    }
+    return PDG; 
+}
 
-std::pair<Vec_tlv, std::pair<int, int>> get_best_jet_pair(float DesiredMass, float DesiredMRec, float ecm, Vec_tlv Jets){
+
+std::pair<Vec_tlv, std::pair<int, int>> get_best_jet_pair(float DesiredMass, float DesiredMRec, float ecm, Vec_tlv Jets, std::vector<Vec_f> scores){
     // Returns a vector holding, in the first entry, a TLV best matched to the desired mass and making the recoil mass in the event closest to a specified value. 
     // In the second entry, the four momentum of the recoil in the event is returned. 
     //Entries 3 and 4 are the individual best jets. 
-    std::pair<Vec_tlv,std::pair<int, int>> result; 
     Vec_tlv TLVresult; 
     float MassDiff;
     float MRecDiff;
@@ -193,15 +213,21 @@ std::pair<Vec_tlv, std::pair<int, int>> get_best_jet_pair(float DesiredMass, flo
     float MRec = 9999999999.9; 
     float ScoreOld = 9999999999.9; 
 
-    float chi_squared_frac = 0.4; 
+    float chi_squared_frac = 0.0; 
     std::pair<int, int> GoodJets; //indices of the GoodJets 
-
+     
     
     auto CenterOfMomentum = TLorentzVector(0,0,0,ecm); 
     
     for(size_t i = 0; i < Jets.size() - 1; ++i){
         for(size_t j = 1; j < Jets.size(); ++j){
             if (j > i){
+                int Jet1PDG = PDGFromScoreVec(scores[i]); 
+                int Jet2PDG = PDGFromScoreVec(scores[j]);
+                if (Jet1PDG != Jet2PDG){
+                    continue; 
+                }
+                   
                 
             
             float Mij = (Jets[i] + Jets[j]).M(); 
@@ -210,8 +236,15 @@ std::pair<Vec_tlv, std::pair<int, int>> get_best_jet_pair(float DesiredMass, flo
             
             MRec = (CenterOfMomentum - (Jets[i] + Jets[j])).M(); 
             MRecDiff = pow((MRec - DesiredMRec), 2); 
-            Score = (1-chi_squared_frac)*MassDiff + chi_squared_frac*MRecDiff; // The weights on MassDiff and MRecDiff are lifted from Jan's analysis. 
+            Score = (1-chi_squared_frac)*MassDiff + chi_squared_frac*MRecDiff; 
            // cout << "This is MassDiff: " << MassDiff << endl;  
+           //Veto interpretations that suggest ee --> ZZ / WW --> 4 jets
+        //    float ZZScore = (1-chi_squared_frac)*pow((Mij - 91.2),2) + chi_squared_frac*pow((MRec - 91.2), 2); 
+        //    float WWScore = (1-chi_squared_frac)*pow((Mij - 80.38),2) + chi_squared_frac*pow((MRec - 80.38), 2);
+            // if (ZZScore < Score || WWScore < Score){
+
+            // }
+
             if (Score < ScoreOld){
                 GoodJets.first = i; 
                 GoodJets.second = j; 
@@ -223,15 +256,17 @@ std::pair<Vec_tlv, std::pair<int, int>> get_best_jet_pair(float DesiredMass, flo
     }
     // cout << "This is first index: " << GoodJets.first << endl; 
     // cout << "This is second index: " << GoodJets.second << endl; 
+
+
     auto recoil_p4 = TLorentzVector(0,0,0,ecm); 
     recoil_p4 -= (Jets[GoodJets.first] + Jets[GoodJets.second]); 
     TLVresult.push_back(Jets[GoodJets.first] + Jets[GoodJets.second]); 
     TLVresult.push_back(recoil_p4);
     TLVresult.push_back(Jets[GoodJets.first]); 
     TLVresult.push_back(Jets[GoodJets.second]); 
+    
 
-    result.first = TLVresult; 
-    result.second = GoodJets; 
+    std::pair<Vec_tlv, std::pair<int, int>> result{TLVresult, GoodJets}; 
 
     return result; 
 }
@@ -497,44 +532,26 @@ Vec_f MakeScoreVector(float ScoreQ, float ScoreB, float ScoreC, float ScoreS, fl
     return result; 
 }
 
-int PDGFromScoreVec(Vec_f Scores){
-    int PDG; 
-    size_t idx  = ROOT::VecOps::ArgMax(Scores); 
-    if(idx == 0){
-        PDG = 1; 
-    }
-    else if(idx == 1){
-        PDG = 5; 
-    }
-    else if (idx == 2){
-        PDG = 4; 
-    }
-    else if (idx == 3){
-        PDG = 3;
-    }
-    else if (idx == 4){
-        PDG = 21; 
-    }
-    return PDG; 
-}
 
-std::tuple<Vec_tlv, std::pair<int, int>, Vec_f, Vec_f> BestJetsWithPDG(Vec_tlv jets, std::vector<Vec_f> scores){
-   std::pair<Vec_tlv, std::pair<int, int>> temp = get_best_jet_pair(91.2, 125.0, 240, jets); 
-   Vec_tlv TLVResult = temp.first; 
-   //Determine PDGs: 
-   int Jet1PDG = PDGFromScoreVec(scores[temp.second.first]); 
-   int Jet2PDG = PDGFromScoreVec(scores[temp.second.second]);
-   std::pair<int, int> PDGPair; 
-   PDGPair.first = Jet1PDG; 
-   PDGPair.second = Jet2PDG; 
+// Deprecated way of getting best Jets with PDGs
 
-   Vec_f Jet1Scores = scores[temp.second.first];
-   Vec_f Jet2Scores = scores[temp.second.second];
+// std::tuple<Vec_tlv, std::pair<int, int>, Vec_f, Vec_f> BestJetsWithPDG(Vec_tlv jets, std::vector<Vec_f> scores){
+//    std::pair<Vec_tlv, std::pair<int, int>> temp = get_best_jet_pair(91.2, 125.0, 240, jets); 
+//    Vec_tlv TLVResult = temp.first; 
+//    //Determine PDGs: 
+//    int Jet1PDG = PDGFromScoreVec(scores[temp.second.first]); 
+//    int Jet2PDG = PDGFromScoreVec(scores[temp.second.second]);
+//    std::pair<int, int> PDGPair; 
+//    PDGPair.first = Jet1PDG; 
+//    PDGPair.second = Jet2PDG; 
+
+//    Vec_f Jet1Scores = scores[temp.second.first];
+//    Vec_f Jet2Scores = scores[temp.second.second];
 
 
-   std::tuple<Vec_tlv, std::pair<int, int>, Vec_f, Vec_f> result {TLVResult, PDGPair, Jet1Scores, Jet2Scores}; 
-   return result; 
-}
+//    std::tuple<Vec_tlv, std::pair<int, int>, Vec_f, Vec_f> result {TLVResult, PDGPair, Jet1Scores, Jet2Scores}; 
+//    return result; 
+// }
 
 
 
@@ -970,25 +987,25 @@ Vec_f MELAAngles(Vec_tlv Z1_lept1, int Z1_lept1Id, Vec_tlv Z1_lept2, int Z1_lept
     return result; 
 }
 
-Vec_f VHAngles( TLorentzVector p4M11, int Z1_lept1Id, TLorentzVector p4M12, int Z1_lept2Id,
-  TLorentzVector p4M21, int Z2_lept1Id,
-  TLorentzVector p4M22, int Z2_lept2Id,
-  TLorentzVector jet1, int jet1Id,
-  TLorentzVector jet2, int jet2Id,
-  TLorentzVector* injet1, int injet1Id, // Gen. partons in the lab frame
-  TLorentzVector* injet2, int injet2Id
-  ){
-    float costhetastar = -99; 
-    float costheta1 = -99; 
-    float costheta2 = -99; 
-    float phi = -99; 
-    float phi1 = -99; 
-    float mVstar = -99; 
-    float mV = -99; 
+// Vec_f VHAngles( TLorentzVector p4M11, int Z1_lept1Id, TLorentzVector p4M12, int Z1_lept2Id,
+//   TLorentzVector p4M21, int Z2_lept1Id,
+//   TLorentzVector p4M22, int Z2_lept2Id,
+//   TLorentzVector jet1, int jet1Id,
+//   TLorentzVector jet2, int jet2Id,
+//   TLorentzVector* injet1, int injet1Id, // Gen. partons in the lab frame
+//   TLorentzVector* injet2, int injet2Id
+//   ){
+//     float costhetastar = -99; 
+//     float costheta1 = -99; 
+//     float costheta2 = -99; 
+//     float phi = -99; 
+//     float phi1 = -99; 
+//     float mVstar = -99; 
+//     float mV = -99; 
 
     
 
-  }
+//   }
 
 
 /* WIP that uses same input as weights functions, i.e. the conventions of daughter jets mothers
