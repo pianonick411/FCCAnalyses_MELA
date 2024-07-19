@@ -4,6 +4,7 @@ flavor = "mumu" # mumu or ee
 do_mass = True # for mass analysis, extra cut on cos(theta_miss)
 do_gen = False # replace reco-particles by the corresponding gen particle
 do_syst = False
+do_weights = False
 
 
 import os 
@@ -16,17 +17,17 @@ def print_process_id():
 # list of processes
 processList = {
     # main backgrounds
-   #'p8_ee_WW_ecm240': {'fraction':1},
-   #'p8_ee_ZZ_ecm240': {'fraction':1},
-   #'wzp6_ee_tautau_ecm240': {'fraction':1},
-   #'wzp6_ee_mumu_ecm240' if flavor=="mumu" else 'wzp6_ee_ee_Mee_30_150_ecm240': {'fraction':1},
+   'p8_ee_WW_ecm240': {'fraction':1},
+   'p8_ee_ZZ_ecm240': {'fraction':1},
+   'wzp6_ee_tautau_ecm240': {'fraction':1},
+   'wzp6_ee_mumu_ecm240' if flavor=="mumu" else 'wzp6_ee_ee_Mee_30_150_ecm240': {'fraction':1},
 
     #rare backgrounds
-    #f'wzp6_egamma_eZ_Z{flavor}_ecm240': {'fraction':1},
-    #f'wzp6_gammae_eZ_Z{flavor}_ecm240': {'fraction':1},
-    #f'wzp6_gaga_{flavor}_60_ecm240': {'fraction':1},
-    #'wzp6_gaga_tautau_60_ecm240': {'fraction':1},
-    #'wzp6_ee_nuenueZ_ecm240': {'fraction':1},
+    f'wzp6_egamma_eZ_Z{flavor}_ecm240': {'fraction':1},
+    f'wzp6_gammae_eZ_Z{flavor}_ecm240': {'fraction':1},
+    f'wzp6_gaga_{flavor}_60_ecm240': {'fraction':1},
+    'wzp6_gaga_tautau_60_ecm240': {'fraction':1},
+    'wzp6_ee_nuenueZ_ecm240': {'fraction':1},
     
     # signal
    f'wzp6_ee_{flavor}H_ecm240': {'fraction':1},
@@ -56,37 +57,18 @@ includePaths = ["functions.h", "JHUfunctions.h"]
 
 
 #Optional: output directory, default is local running directory
-outputDir   = "FCCAnalysisOut/Junk/"
+outputDir   = "FCCAnalysisOut/mumuStudy_NoXSecScaling/"
 
 #f"output_{flavor}/"
 
 
 # optional: ncpus, default is 4, -1 uses all cores available
-nCPUS       = 1
+nCPUS       = -1
 
 # scale the histograms with the cross-section and integrated luminosity
-doScale = True
+doScale = False
 intLumi = 7200000 # 7.2 /ab
 
-# Define relative cross sections for "4D" histogram filling. This approach doesn't work. 
-#ZZxs =  1358.99*14241/56162093#9784800#3.98208872*0.107654841*2.263586919*0.949954658
-#ROOT.gInterpreter.Declare('float ZZxs = float(TPython::Exec("ZZxs"));')
-#WWxs =  16438.5*12147/373375386#118080000
-#ROOT.gInterpreter.Declare('float WWxs = float(TPython::Exec("WWxs"));')
-#mumuxs =  5288.0*1948/53400000#.00028192883#0.9658074669*0.1*4.785544778
-#ROOT.gInterpreter.Declare('float mumuxs = float(TPython::Exec("mumuxs"));')
-#tautauxs =  4668.0*228/52400000#0.00026187022
-#ROOT.gInterpreter.Declare('float tautauxs = float(TPython::Exec("tautauxs"));')
-#egammaxs = 103.68*9/6000000
-#ROOT.gInterpreter.Declare('float egammaxs = float(TPython::Exec("egammaxs"));')
-#gammaexs = 103.68*16/5600000
-#ROOT.gInterpreter.Declare('float gammaexs = float(TPython::Exec("gammaexs"));')
-#gagatautauxs = 836.0*8/33700000
-#ROOT.gInterpreter.Declare('float gagatautauxs = float(TPython::Exec("gagatautauxs"));')
-#gagamumuxs = 1552*0/33900000
-#ROOT.gInterpreter.Declare('float gagamumuxs = float(TPython::Exec("gagamumuxs"));')
-#nuxs = 33.27*2694/2000000#33.27*2669/2000000
-#ROOT.gInterpreter.Declare('float nuxs = float(TPython::Exec("nuxs"));')
 
 
 # define some binning for various histograms
@@ -194,7 +176,8 @@ def build_graph(df, dataset):
         df = df.Define("higgsGenStatus", "FCCAnalyses::MCParticle::get_genStatus(higgsVec_MC)")
         df = df.Define("higgsSimStatus", "FCCAnalyses::MCParticle::get_simStatus(higgsVec_MC)")
         df = df.Define("higgsMCTLV", "FCCAnalyses::JHUfunctions::makeLorentzVectors(higgsVec_MC)")
-
+    
+    if do_weights:
         df = df.Define("SMWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgsMCTLV, LHEAssociatedParticleId, negmuTLV, posmuTLV, SMVec)')
         df = df.Define("BSMWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgsMCTLV, LHEAssociatedParticleId, negmuTLV, posmuTLV, BSMVec)')
         df = df.Define("BSMWeightsEqual", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgsMCTLV, LHEAssociatedParticleId, negmuTLV, posmuTLV, EqualBSMVec)')
@@ -455,27 +438,28 @@ def build_graph(df, dataset):
        # df = df.Define("parent1pdg", "FCCAnalyses::JHUfunctions::parent1pdg(parents_PDG[0])")
        # df = df.Define("parents_decay_list", "FCCAnalyses::ZHfunctions::gen_decay_list(parents_MC, Particle, Particle1)")
     
-    df = df.Define("RecoSMWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgs_tlv, LHEAssociatedParticleId, leps_neg_tlv, leps_pos_tlv, SMVec)')
-    df = df.Define("RecoBSMWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgs_tlv, LHEAssociatedParticleId, leps_neg_tlv, leps_pos_tlv, BSMVec)')
+    if do_weights:
+        df = df.Define("RecoSMWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgs_tlv, LHEAssociatedParticleId, leps_neg_tlv, leps_pos_tlv, SMVec)')
+        df = df.Define("RecoBSMWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgs_tlv, LHEAssociatedParticleId, leps_neg_tlv, leps_pos_tlv, BSMVec)')
 
 
-    df = df.Define("RecoBSMWeightsEqual", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgs_tlv, LHEAssociatedParticleId, leps_neg_tlv, leps_pos_tlv, EqualBSMVec)')
+        df = df.Define("RecoBSMWeightsEqual", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgs_tlv, LHEAssociatedParticleId, leps_neg_tlv, leps_pos_tlv, EqualBSMVec)')
 
-    df = df.Define("RecoMixtureWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgs_tlv, LHEAssociatedParticleId, leps_neg_tlv, leps_pos_tlv, MixtureVec)')
-    df = df.Define("RecoNegMixtureWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgs_tlv, LHEAssociatedParticleId, leps_neg_tlv, leps_pos_tlv, NegMixtureVec)')
-    df = df.Define("RecoInterferenceWeights", 'RecoMixtureWeights - RecoSMWeights - RecoBSMWeights')
-    
-    df = df.Define("RecoEqualMixtureWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgs_tlv, LHEAssociatedParticleId, leps_neg_tlv, leps_pos_tlv, EqualMixtureVec)')
-    df = df.Define("RecoNegEqualMixtureWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgs_tlv, LHEAssociatedParticleId, leps_neg_tlv, leps_pos_tlv, NegEqualMixtureVec)')
-    df = df.Define("RecoEqualInterferenceWeights", 'RecoEqualMixtureWeights - RecoSMWeights - RecoBSMWeightsEqual')
-    df = df.Define("RecoNegEqualInterferenceWeights", 'RecoNegEqualMixtureWeights - RecoSMWeights - RecoBSMWeightsEqual')
+        df = df.Define("RecoMixtureWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgs_tlv, LHEAssociatedParticleId, leps_neg_tlv, leps_pos_tlv, MixtureVec)')
+        df = df.Define("RecoNegMixtureWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgs_tlv, LHEAssociatedParticleId, leps_neg_tlv, leps_pos_tlv, NegMixtureVec)')
+        df = df.Define("RecoInterferenceWeights", 'RecoMixtureWeights - RecoSMWeights - RecoBSMWeights')
+        
+        df = df.Define("RecoEqualMixtureWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgs_tlv, LHEAssociatedParticleId, leps_neg_tlv, leps_pos_tlv, EqualMixtureVec)')
+        df = df.Define("RecoNegEqualMixtureWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgs_tlv, LHEAssociatedParticleId, leps_neg_tlv, leps_pos_tlv, NegEqualMixtureVec)')
+        df = df.Define("RecoEqualInterferenceWeights", 'RecoEqualMixtureWeights - RecoSMWeights - RecoBSMWeightsEqual')
+        df = df.Define("RecoNegEqualInterferenceWeights", 'RecoNegEqualMixtureWeights - RecoSMWeights - RecoBSMWeightsEqual')
 
-    df = df.Define("D_0Minus", 'RecoSMWeights/ (RecoSMWeights + RecoBSMWeights)')
-    df = df.Define("D_CP", 'RecoInterferenceWeights/(2*sqrt(RecoSMWeights*RecoBSMWeights))')
-    
+        df = df.Define("D_0Minus", 'RecoSMWeights/ (RecoSMWeights + RecoBSMWeights)')
+        df = df.Define("D_CP", 'RecoInterferenceWeights/(2*sqrt(RecoSMWeights*RecoBSMWeights))')
+        
 
-    df = df.Define("D_0Minus_Equal", 'RecoSMWeights/ (RecoSMWeights + RecoBSMWeightsEqual)')
-    df = df.Define("D_CP_Equal", 'RecoEqualInterferenceWeights/(2*sqrt(RecoSMWeights*RecoBSMWeightsEqual))')
+        df = df.Define("D_0Minus_Equal", 'RecoSMWeights/ (RecoSMWeights + RecoBSMWeightsEqual)')
+        df = df.Define("D_CP_Equal", 'RecoEqualInterferenceWeights/(2*sqrt(RecoSMWeights*RecoBSMWeightsEqual))')
     
 
     # df = df.Define("RecoSMWeightsNORM", 'RecoSMWeights/RecoSMWeights')
@@ -493,16 +477,17 @@ def build_graph(df, dataset):
     # df = df.Define("MixtureWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgsMCTLV, LHEAssociatedParticleId, negmuTLV, posmuTLV, MixtureVec)')
     # df = df.Define("NegMixtureWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgsMCTLV, LHEAssociatedParticleId, negmuTLV, posmuTLV, NegMixtureVec)')
     if dataset in sigProcs: 
-        df = df.Define("SMWeightsNORM", "SMWeights/SMWeights")
-        df = df.Define("BSMWeightsNORM", 'BSMWeights/SMWeights')
-        df = df.Define("BSMWeightsEqualNORM", 'BSMWeightsEqual/SMWeights')
-        df = df.Define("MixtureWeightsNORM", 'MixtureWeights/SMWeights')
-        df = df.Define("NegMixtureWeightsNORM", 'NegMixtureWeights/SMWeights')    
-        df = df.Define("InterferenceWeightsNORM", "InterferenceWeights/SMWeights")
-        
-        df = df.Define("EqualMixtureWeightsNORM", "EqualMixtureWeights/SMWeights")
-        df = df.Define("NegEqualMixtureWeightsNORM", "NegEqualMixtureWeights/SMWeights")
-        df = df.Define("EqualInterferenceWeightsNORM", "EqualInterferenceWeights/SMWeights")
+        if do_weights:
+            df = df.Define("SMWeightsNORM", "SMWeights/SMWeights")
+            df = df.Define("BSMWeightsNORM", 'BSMWeights/SMWeights')
+            df = df.Define("BSMWeightsEqualNORM", 'BSMWeightsEqual/SMWeights')
+            df = df.Define("MixtureWeightsNORM", 'MixtureWeights/SMWeights')
+            df = df.Define("NegMixtureWeightsNORM", 'NegMixtureWeights/SMWeights')    
+            df = df.Define("InterferenceWeightsNORM", "InterferenceWeights/SMWeights")
+            
+            df = df.Define("EqualMixtureWeightsNORM", "EqualMixtureWeights/SMWeights")
+            df = df.Define("NegEqualMixtureWeightsNORM", "NegEqualMixtureWeights/SMWeights")
+            df = df.Define("EqualInterferenceWeightsNORM", "EqualInterferenceWeights/SMWeights")
         
     weightsum = df.Sum("nominal_weight")
    # ROOT.gInterpreter.Declare('float weight = float(TPython::Exec("weightsum"));') #This approach doesn't work. FCC Framework won't accept python callables even defined this way. Probably because these variables are never truly global. 
@@ -607,13 +592,13 @@ def build_graph(df, dataset):
 
 
     #if dataset in sigProcs:
-
-    results.append(df.Histo1D(("RecoSMWeights", "", *bins_weight), "RecoSMWeights", "nominal_weight"))
-    results.append(df.Histo1D(("RecoBSMWeights", "", *bins_weight), "RecoBSMWeights", "nominal_weight"))
-    results.append(df.Histo1D(("RecoBSMWeightsEqual", "", *bins_weight), "RecoBSMWeightsEqual", "nominal_weight"))
-    results.append(df.Histo1D(("RecoMixtureWeights", "", *bins_weight), "RecoMixtureWeights", "nominal_weight"))
-    results.append(df.Histo1D(("RecoNegMixtureWeights", "", *bins_weight), "RecoNegMixtureWeights", "nominal_weight"))
-    results.append(df.Histo1D(("RecoInterferenceWeights", "", *bins_weight), "RecoInterferenceWeights", "nominal_weight"))
+    if do_weights:
+        results.append(df.Histo1D(("RecoSMWeights", "", *bins_weight), "RecoSMWeights", "nominal_weight"))
+        results.append(df.Histo1D(("RecoBSMWeights", "", *bins_weight), "RecoBSMWeights", "nominal_weight"))
+        results.append(df.Histo1D(("RecoBSMWeightsEqual", "", *bins_weight), "RecoBSMWeightsEqual", "nominal_weight"))
+        results.append(df.Histo1D(("RecoMixtureWeights", "", *bins_weight), "RecoMixtureWeights", "nominal_weight"))
+        results.append(df.Histo1D(("RecoNegMixtureWeights", "", *bins_weight), "RecoNegMixtureWeights", "nominal_weight"))
+        results.append(df.Histo1D(("RecoInterferenceWeights", "", *bins_weight), "RecoInterferenceWeights", "nominal_weight"))
     # results.append(df.Histo1D(("RecoNegInterferenceWeights", "", *bins_weight), "RecoNegInterferenceWeights", "nominal_weight"))
 
     # results.append(df.Histo1D(("SMWeights", "", *bins_weight), "RecoSMWeights", "nominal_weight"))
@@ -692,61 +677,61 @@ def build_graph(df, dataset):
     #    df.Snapshot("tree", f"{dataset}.root", {"zll_m", "cos_1", "cos_2", "phi"})
     #for ele in dataset:
        # df.Snapshot("tree", f"FCCAnalysisOut/BkgTemplate/{ele}.root", {"zll_m", "cos_1" "cos_2","phi"})
-    branchlist = ROOT.std.vector('std::string')()
-    branchlist.push_back('zll_recoil_m')
-    branchlist.push_back('D_0Minus')
-    branchlist.push_back('D_CP')
-    branchlist.push_back('cos_1')
-    branchlist.push_back('cos_2')
-    branchlist.push_back('phi')
-    branchlist.push_back('D_0Minus_Equal')
-    branchlist.push_back('D_CP_Equal')
+    # branchlist = ROOT.std.vector('std::string')()
+    # branchlist.push_back('zll_recoil_m')
+    # branchlist.push_back('D_0Minus')
+    # branchlist.push_back('D_CP')
+    # branchlist.push_back('cos_1')
+    # branchlist.push_back('cos_2')
+    # branchlist.push_back('phi')
+    # branchlist.push_back('D_0Minus_Equal')
+    # branchlist.push_back('D_CP_Equal')
 
-    sig_branchlist = ROOT.std.vector('std::string')()
-    sig_branchlist.push_back('zll_recoil_m')
-    sig_branchlist.push_back('D_0Minus')
-    sig_branchlist.push_back('D_CP')
+    # sig_branchlist = ROOT.std.vector('std::string')()
+    # sig_branchlist.push_back('zll_recoil_m')
+    # sig_branchlist.push_back('D_0Minus')
+    # sig_branchlist.push_back('D_CP')
 
-    sig_branchlist.push_back('D_0Minus_Equal')
-    sig_branchlist.push_back('D_CP_Equal')
+    # sig_branchlist.push_back('D_0Minus_Equal')
+    # sig_branchlist.push_back('D_CP_Equal')
 
-    sig_branchlist.push_back('cos_1')
-    sig_branchlist.push_back('cos_2')
-    sig_branchlist.push_back('phi')
+    # sig_branchlist.push_back('cos_1')
+    # sig_branchlist.push_back('cos_2')
+    # sig_branchlist.push_back('phi')
     # sig_branchlist.push_back('RecoSMWeightsNORM')
     # sig_branchlist.push_back('RecoBSMWeightsNORM')
     # sig_branchlist.push_back('RecoBSMWeightsEqualNORM')
     # sig_branchlist.push_back('RecoMixtureWeightsNORM')
     # sig_branchlist.push_back('RecoNegMixtureWeightsNORM')
     
-    sig_branchlist.push_back('SMWeights')
-    sig_branchlist.push_back('SMWeightsNORM')
+    # sig_branchlist.push_back('SMWeights')
+    # sig_branchlist.push_back('SMWeightsNORM')
 
-    sig_branchlist.push_back('BSMWeights')
-    sig_branchlist.push_back('BSMWeightsNORM')
+    # sig_branchlist.push_back('BSMWeights')
+    # sig_branchlist.push_back('BSMWeightsNORM')
     
-    sig_branchlist.push_back('BSMWeightsEqual')
-    sig_branchlist.push_back('BSMWeightsEqualNORM')
+    # sig_branchlist.push_back('BSMWeightsEqual')
+    # sig_branchlist.push_back('BSMWeightsEqualNORM')
 
-    sig_branchlist.push_back('InterferenceWeights')
-    sig_branchlist.push_back('InterferenceWeightsNORM')
+    # sig_branchlist.push_back('InterferenceWeights')
+    # sig_branchlist.push_back('InterferenceWeightsNORM')
 
-    sig_branchlist.push_back('EqualInterferenceWeights')
-    sig_branchlist.push_back('EqualInterferenceWeightsNORM')
+    # sig_branchlist.push_back('EqualInterferenceWeights')
+    # sig_branchlist.push_back('EqualInterferenceWeightsNORM')
 
-    sig_branchlist.push_back('MixtureWeights')
-    sig_branchlist.push_back('MixtureWeightsNORM')
+    # sig_branchlist.push_back('MixtureWeights')
+    # sig_branchlist.push_back('MixtureWeightsNORM')
     
-    sig_branchlist.push_back('NegMixtureWeights')
-    sig_branchlist.push_back('NegMixtureWeightsNORM')
+    # sig_branchlist.push_back('NegMixtureWeights')
+    # sig_branchlist.push_back('NegMixtureWeightsNORM')
 
-    sig_branchlist.push_back('EqualMixtureWeights')
-    sig_branchlist.push_back('EqualMixtureWeightsNORM')
+    # sig_branchlist.push_back('EqualMixtureWeights')
+    # sig_branchlist.push_back('EqualMixtureWeightsNORM')
 
 
-    sig_branchlist.push_back('NegEqualMixtureWeights')
-    sig_branchlist.push_back('NegEqualMixtureWeightsNORM')
+    # sig_branchlist.push_back('NegEqualMixtureWeights')
+    # sig_branchlist.push_back('NegEqualMixtureWeightsNORM')
     #df.Snapshot("tree", f"FCCAnalysisOut/{flavor}/bkg_{dataset}.root", {"zll_recoil_m", "D_0Minus",  "D_CP", "RecoSMWeightsNORM", "RecoBSMWeightsNORM", "RecoMixtureWeightsNORM", "RecoNegMixtureWeightsNORM", "SMWeightsNORM", "BSMWeightsNORM", "InterferenceWeightsNORM", "MixtureWeightsNORM", "NegMixtureWeightsNORM"})
     #df.Snapshot("tree", f"muonTestingHopefullyFixed/{dataset}.root", branchlist)
-    df.Snapshot("tree", f"FCCAnalysisOut/May21Sig.root", sig_branchlist)
+    # df.Snapshot("tree", f"FCCAnalysisOut/May21Sig.root", sig_branchlist)
     return results, weightsum

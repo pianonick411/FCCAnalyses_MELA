@@ -10,10 +10,10 @@ delphesVersion  = '3.4.2'
 energy          = 240.0
 collider        = 'FCC-ee'
 #inputDir        = f'output_{flavor}/'
-inputDir        = 'jetTests/July17TestsSet3'
+inputDir        = 'jetTests/July18TestsSet3'
 formats         = ['pdf', 'png']
 #outdir          = f'plots_{flavor}/'
-outdir          = 'jetPlots/'
+outdir          = 'jetPlots/July18ScaledSig'
 plotStatUnc     = False
 
 colors = {}
@@ -66,21 +66,84 @@ hists["Z_mass"] = {
     "logy":     False,
     "stack":    False,
     "rebin":    20,
-    "xmin":     80,
+    "xmin":     60,
     "xmax":     100,
-    "xtitle":   f"m(Jets) (GeV)",
+    "xtitle":   f"m(Dijet) (GeV)",
     "ytitle":   "Events ",
+    "scaleSig": 100
+}
+
+hists["Z_p"] = {
+    "output":   "Z_p",
+    "logy":     False,
+    "stack":    False,
+    "rebin":    2,
+    "xmin":     20,
+    "xmax":     60,
+    "xtitle":   f"p(Dijet) (GeV)",
+    "ytitle":   "Events ",
+    "scaleSig": 100
+}
+
+
+hists["W_chi"] = {
+    "output":   "W_chi",
+    "logy":     False,
+    "stack":    False,
+    "rebin":    20,
+    "xmin":     0,
+    "xmax":     100,
+    "xtitle":   f"W_chi",
+    "ytitle":   "Events ",
+    "scaleSig": 100
+}
+
+hists["Z_chi"] = {
+    "output":   "Z_chi",
+    "logy":     False,
+    "stack":    False,
+    "rebin":    20,
+    "xmin":     0,
+    "xmax":     100,
+    "xtitle":   f"Z_chi",
+    "ytitle":   "Events ",
+    "scaleSig": 100
+}
+
+hists["chi"] = {
+    "output":   "chi",
+    "logy":     False,
+    "stack":    False,
+    "rebin":    20,
+    "xmin":     0,
+    "xmax":     100,
+    "xtitle":   f"chi",
+    "ytitle":   "Events ",
+    "scaleSig": 100
 }
 
 hists["recoil_mass"] = {
     "output":   "recoil_mass",
     "logy":     False,
-    "stack":    True,
+    "stack":    False,
     "rebin":    20,
     "xmin":     80,
     "xmax":     160,
     "xtitle":   f"m(Rec) (GeV)",
     "ytitle":   "Events ",
+    "scaleSig": 100
+}
+
+hists["recoil_mass_corrected"] = {
+    "output":   "recoil_mass_corrected",
+    "logy":     False,
+    "stack":    False,
+    "rebin":    20,
+    "xmin":     80,
+    "xmax":     160,
+    "xtitle":   f"m(Rec) (GeV)",
+    "ytitle":   "Events ",
+    "scaleSig": 100
 }
 
 hists["cos_1"] = {
@@ -92,6 +155,7 @@ hists["cos_1"] = {
     "xmax":     1,
     "xtitle":   f"cos_1",
     "ytitle":   "Events ",
+    "scaleSig": 100
 }
 
 hists["cos_2_corrected"] = {
@@ -103,6 +167,7 @@ hists["cos_2_corrected"] = {
     "xmax":     1,
     "xtitle":   f"cos_2_corrected",
     "ytitle":   "Events ",
+    "scaleSig": 100
 }
 
 hists["phi"] = {
@@ -114,6 +179,7 @@ hists["phi"] = {
     "xmax":     3.1415,
     "xtitle":   f"phi",
     "ytitle":   "Events ",
+    "scaleSig": 100
 }
 
 
@@ -125,7 +191,7 @@ hists["cutFlow"] = {
     "xmax":     10,
     "ymin":     1e3,
     "ymax":     1e11,
-    #"xtitle":   ["All events", f"#geq 1 {flavor_l}^{{#pm}} + ISO", f"#geq 2 {flavor_l}^{{#pm}} + OS", f"86 < m({flavor_l}^{{#plus}}{flavor_l}^{{#minus}}) < 96", f"45 < p({flavor_l}^{{#plus}}{flavor_l}^{{#minus}}) < 55", "124 < m_{rec} < 127", "|cos#theta_{miss}| < 0.98", "|cos#theta_{2}| < 0.99"],
+    "xtitle":   ["All events", f"e <= 2", f"p(e) < 20 GeV", f"mu <= 2", f"p(mu) < 20 GeV", "vis_M, vis_E > 150 GeV, 0.15 < vis_theta < 3.0", "110 < mRec < 145", "60 < m(Z) < 100", "20 < p(Z) < 60", "W_chi & Z_chi > 10"],
     "ytitle":   "Events ",
     "scaleSig": 10
 }

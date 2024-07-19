@@ -45,13 +45,13 @@ processList = {
 
 
 
- f'wzp6_ee_bbH_Hbb_ecm240': {'fraction':0.01},
-#   f'wzp6_ee_bbH_Hcc_ecm240': {'fraction':0.01},
-#     f'wzp6_ee_bbH_Hss_ecm240': {'fraction':0.01},
-#     f'wzp6_ee_bbH_Hgg_ecm240': {'fraction':0.01},
-#     'wzp6_ee_bbH_Htautau_ecm240':{'fraction':0.01},
-  'wzp6_ee_bbH_HZZ_ecm240':{'fraction':0.01},
-  'wzp6_ee_bbH_HWW_ecm240':{'fraction':0.01},
+# f'wzp6_ee_bbH_Hbb_ecm240': {'fraction':0.01},
+    f'wzp6_ee_bbH_Hcc_ecm240': {'fraction':0.01},
+#      f'wzp6_ee_bbH_Hss_ecm240': {'fraction':0.01},
+#      f'wzp6_ee_bbH_Hgg_ecm240': {'fraction':0.01},
+#      'wzp6_ee_bbH_Htautau_ecm240':{'fraction':0.01},
+#   'wzp6_ee_bbH_HZZ_ecm240':{'fraction':0.01},
+#   'wzp6_ee_bbH_HWW_ecm240':{'fraction':0.01},
 
 
 
@@ -88,7 +88,7 @@ includePaths = ["functions.h", "JHUfunctions.h"]
 
 
 #Optional: output directory, default is local running directory
-outputDir   = "jetTests/July18TestsSet2/"
+outputDir   = "jetTests/July19Set1/"
 
 #f"output_{flavor}/"
 
@@ -842,6 +842,10 @@ def build_graph(df, dataset):
     df = df.Define("recoil_mass", "recoil_tlv.M()")
 
     df = df.Define("recoil_mass_corrected", "recoil_mass + Z_mass - 91.187")
+
+    df = df.Define("jetsTruthPDG", "FCCAnalyses::JHUfunctions::jetTruthFinder(jets_tlv, Particle)")
+    df = df.Define("BestJetsTruthPDG", "FCCAnalyses::JHUfunctions::jetTruthFinder(ROOT::VecOps::RVec<TLorentzVector>{Best_Jets_Result[2], Best_Jets_Result[3]}, Particle)")
+    results.append(df.Histo1D(("Best_Jets_Truth_BeforeCuts", "", *bins_pdgid), "BestJetsTruthPDG"))
        
 
     ####################
@@ -1097,7 +1101,8 @@ def build_graph(df, dataset):
     # results.append(df.Histo1D(("zll_m_recoil_m", "", *bins_p_ll), "zll_recoil_m"))
 
   
-    #results.append(df.Histo1D(("jets_truth", "", *bins_pdgid), "jets_truth"))
+    results.append(df.Histo1D(("jets_truth", "", *bins_pdgid), "jetsTruthPDG"))
+    results.append(df.Histo1D(("Best_Jets_Truth", "", *bins_pdgid), "BestJetsTruthPDG"))
     #results.append(df.Histo1D(("HiggsIdx", "", *bins_count), "HiggsIdx[0]"))
 
     results.append(df.Histo1D(("daughter_higgs", "", *bins_pdgid), "daughter_higgs"))

@@ -224,7 +224,7 @@ std::pair<Vec_tlv, std::pair<int, int>> get_best_jet_pair(float DesiredMass, flo
             if (j > i){
                 int Jet1PDG = PDGFromScoreVec(scores[i]); 
                 int Jet2PDG = PDGFromScoreVec(scores[j]);
-                if (Jet1PDG != Jet2PDG || Jet1PDG == 21 || Jet2PDG == 21){
+                if (Jet1PDG != Jet2PDG){
                     continue; 
                 }
                    
@@ -370,6 +370,102 @@ Vec_i jetTruthFinder(std::vector<std::vector<int>> constituents, Vec_rp reco, Ve
 }
 
 
+Vec_i jetTruthFinder(Vec_tlv Jets_Tlv, Vec_mc mc, bool findGluons = false) {
+    // jet truth=finder: match the gen-level partons (eventually with gluons) with the jet constituents
+    // matching by mimimizing the sum of dr of the parton and all the jet constituents 
+
+    Vec_tlv genQuarks; // Lorentz-vector of potential partons (gen-level)
+    Vec_i genQuarks_pdgId; // corresponding PDG ID
+    for(size_t i = 0; i < mc.size(); ++i) {
+        int pdgid = abs(mc.at(i).PDG);
+        if(pdgid > 6 and not findGluons) continue; // only quarks 
+        if(pdgid > 6 and pdgid != 21 and findGluons) continue; // only quarks and gluons
+        TLorentzVector tlv;
+        tlv.SetXYZM(mc.at(i).momentum.x,mc.at(i).momentum.y,mc.at(i).momentum.z,mc.at(i).mass);
+        genQuarks.push_back(tlv);
+        genQuarks_pdgId.push_back(mc.at(i).PDG);
+    }
+
+    Vec_i usedIdx;
+    Vec_i result;
+    for(size_t iJet = 0; iJet < Jets_Tlv.size(); ++iJet) {
+        Vec_d dr;
+        for(size_t iGen = 0; iGen < genQuarks.size(); ++iGen) {
+            if(std::find(usedIdx.begin(), usedIdx.end(), iGen) != usedIdx.end()) {
+                dr.push_back(1e99); // set infinite dr, skip
+                continue;
+            }
+            dr.push_back(0);
+            
+            dr[iGen] += Jets_Tlv[iJet].DeltaR(genQuarks[iGen]);
+            
+        }
+        int maxDrIdx = std::min_element(dr.begin(),dr.end()) - dr.begin();
+        usedIdx.push_back(maxDrIdx);
+        result.push_back(genQuarks_pdgId[maxDrIdx]);
+
+    }
+    return result;
+}
+
+std::pair<Vec_i, Vec_i> BestJetTruthFinder(Vec_tlv Jets_Tlv, Vec_mc mc, int qIdx, int qBarIdx, bool findGluons = false) {
+    // To be used on the best 2 jets in order to return both their PDG and whether or not they form the associated Z in ZH production. 
+
+    Vec_tlv genQuarks; // Lorentz-vector of potential partons (gen-level)
+    Vec_i genQuarks_pdgId; // corresponding PDG ID
+    for(size_t i = 0; i < mc.size(); ++i) {
+        int pdgid = abs(mc.at(i).PDG);
+        if(pdgid > 6 and not findGluons) continue; // only quarks 
+        if(pdgid > 6 and pdgid != 21 and findGluons) continue; // only quarks and gluons
+        TLorentzVector tlv;
+        tlv.SetXYZM(mc.at(i).momentum.x,mc.at(i).momentum.y,mc.at(i).momentum.z,mc.at(i).mass);
+        genQuarks.push_back(tlv);
+        genQuarks_pdgId.push_back(mc.at(i).PDG);
+    }
+
+    Vec_i usedIdx;
+    Vec_i PDGresult;
+    Vec_i ZTruthresult; 
+    std_pair <int, int> IdxHolder; 
+    std::pair<Vec_i, Vec_i> result; 
+
+    for(size_t iJet = 0; iJet < Jets_Tlv.size(); ++iJet) {
+        IdxHolder.first = 0; 
+        IdxHolder.second = 0; 
+        Vec_d dr;
+        for(size_t iGen = 0; iGen < genQuarks.size(); ++iGen) {
+            if(std::find(usedIdx.begin(), usedIdx.end(), iGen) != usedIdx.end()) {
+                dr.push_back(1e99); // set infinite dr, skip
+                continue;
+            }
+            dr.push_back(0);
+            
+            dr[iGen] += Jets_Tlv[iJet].DeltaR(genQuarks[iGen]);
+            
+        }
+        int maxDrIdx = std::min_element(dr.begin(),dr.end()) - dr.begin();
+        usedIdx.push_back(maxDrIdx);
+        PDGresult.push_back(genQuarks_pdgId[maxDrIdx]);
+        if(iJet == 0){
+            //If Jet1
+            IdxHolder.first = maxDrIdx; 
+
+        }
+        if(iJet == 1){
+            //if Jet2
+            IdxHolder.second = maxDrIdx; 
+        }
+    }
+    if((IdxHolder.first == qIdx && IdxHolder.second == qBarIdx) || (IdxHolder.first == qBarIdx && IdxHolder.second == qIdx)){
+        ZTruthresult.push_back(1);
+    }
+    else(){
+        ZTruthresult.push_back(0);
+    }
+    result.first = PDGresult; 
+    result.second = ZTruthresult; 
+    return result;
+}
 
 
 
