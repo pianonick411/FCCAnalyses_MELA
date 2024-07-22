@@ -22,7 +22,7 @@ def print_process_id():
 processList = {
     # main backgrounds
     #'p8_ee_WW_ecm240': {'fraction':0.0001},
-    #'p8_ee_ZZ_ecm240': {'fraction':0.001},
+    'p8_ee_ZZ_ecm240': {'fraction':0.001},
     #'wzp6_ee_tautau_ecm240': {'fraction':1},
     #'wzp6_ee_mumu_ecm240' if flavor=="mumu" else 'wzp6_ee_ee_Mee_30_150_ecm240': {'fraction':1},
     #'wzp6_ee_nunuH_ecm240': {'fraction':0.001},
@@ -46,7 +46,7 @@ processList = {
 
 
 # f'wzp6_ee_bbH_Hbb_ecm240': {'fraction':0.01},
-    f'wzp6_ee_bbH_Hcc_ecm240': {'fraction':0.01},
+#    f'wzp6_ee_bbH_Hcc_ecm240': {'fraction':0.01},
 #      f'wzp6_ee_bbH_Hss_ecm240': {'fraction':0.01},
 #      f'wzp6_ee_bbH_Hgg_ecm240': {'fraction':0.01},
 #      'wzp6_ee_bbH_Htautau_ecm240':{'fraction':0.01},
@@ -88,7 +88,7 @@ includePaths = ["functions.h", "JHUfunctions.h"]
 
 
 #Optional: output directory, default is local running directory
-outputDir   = "jetTests/July19Set1/"
+outputDir   = "FCCAnalysisOut/ZZComparison/"
 
 #f"output_{flavor}/"
 
@@ -372,6 +372,7 @@ bins_recoil = (20000, 0, 200) # 10 MeV bins
 bins_recoil_fine = (20000, 120, 140) # 1 MeV bins 
 bins_cosThetaMiss = (10000, 0, 1)
 bins_pdgid = (52, -26.0, 26.0)
+bins_binary = (2, 0, 1)
 
 bins_theta = (500, -5, 5)
 bins_eta = (600, -3, 3)
@@ -671,47 +672,22 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut0", "nominal_weight"))
 
     #########################################################################################################
-    ### Cut 1: Less than or equal to 2 electrons                                                            #
+    ### Cut 1: Electron Veto                                                            #
     #########################################################################################################
     df = df.Filter("electrons_no <= 2")
+    df = df.Filter("electrons_p < 20")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut1", "nominal_weight"))
 
     #########################################################################################################
-    ### Cut2: Electrons should have p < 20                                                                  #
-    #########################################################################################################
-    df = df.Filter("electrons_p < 20")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut2", "nominal_weight"))
-
-    #########################################################################################################
-    ### Cut 3: Less than or equal to 2 muons                                                            #
+    ### Cut2: Muon Veto                                                                  #
     #########################################################################################################
     df = df.Filter("muons_no <= 2")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut3", "nominal_weight"))
-
-    #########################################################################################################
-    ### Cut4: Muons should have p < 20                                                                  #
-    #########################################################################################################
     df = df.Filter("muons_p < 20")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut4", "nominal_weight"))
-
-    
-    results.append(df.Histo1D(("electrons_no", "", *bins_count), "electrons_no"))
-
-    results.append(df.Histo1D(("muons_no", "", *bins_count), "muons_no"))
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut2", "nominal_weight"))
 
 
-    ####################
-    ### Cut 5: Visible Energy and Visible Mass 
-    ####################
-    results.append(df.Histo1D(("vis_theta_nmone", "", *bins_theta), "vis_theta", "nominal_weight"))
-    df = df.Filter("vis_M > 150")
-    df = df.Filter("vis_E > 150")
-    df = df.Filter("vis_theta > 0.15 && vis_theta < 3.0")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut5", "nominal_weight"))
 
 
-    for x in range(1, 9):
-        results.append(df.Histo1D(("d_{}{}_nmone".format(x, x+1), "", *bins_dij), "d_{}{}".format(x,x+1)))
 
     
 
@@ -844,38 +820,51 @@ def build_graph(df, dataset):
     df = df.Define("recoil_mass_corrected", "recoil_mass + Z_mass - 91.187")
 
     df = df.Define("jetsTruthPDG", "FCCAnalyses::JHUfunctions::jetTruthFinder(jets_tlv, Particle)")
-    df = df.Define("BestJetsTruthPDG", "FCCAnalyses::JHUfunctions::jetTruthFinder(ROOT::VecOps::RVec<TLorentzVector>{Best_Jets_Result[2], Best_Jets_Result[3]}, Particle)")
-    results.append(df.Histo1D(("Best_Jets_Truth_BeforeCuts", "", *bins_pdgid), "BestJetsTruthPDG"))
-       
+    df = df.Define("BestJetsTruth", "FCCAnalyses::JHUfunctions::BestJetTruthFinder(ROOT::VecOps::RVec<TLorentzVector>{Best_Jets_Result[2], Best_Jets_Result[3]}, Particle, electronDausIdx[1], electronDausIdx[0])")
+    df = df.Define("BestJetsTruthPDG", "BestJetsTruth.first")
+    df = df.Define("BestJetsTruthZ", "BestJetsTruth.second")
+    results.append(df.Histo1D(("Best_Jets_TruthPDG_BeforeCuts", "", *bins_pdgid), "BestJetsTruthPDG"))
+    results.append(df.Histo1D(("Best_Jets_TruthZ_BeforeCuts", "", *bins_binary), "BestJetsTruthZ"))   
 
     ####################
-    ### Cut 6: recoil mass: 
+    ### Cut 3: Z-Mass
+    ####################
+    results.append(df.Histo1D(("Z_mass_nmone", "", *bins_m_Z), "Z_mass", "nominal_weight"))
+    df = df.Filter("Z_mass > 60 && Z_mass < 100")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut3", "nominal_weight"))
+
+    ####################
+    ### Cut 4: Z-Momentum  
+    ####################
+    results.append(df.Histo1D(("Z_p_nmone", "", *bins_p_ll), "Z_p"))
+    df = df.Filter("Z_p >= 20 && Z_p <= 60")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut4", "nominal_weight"))
+
+
+    ####################
+    ### Cut5 : recoil mass: 
     #################### 
     results.append(df.Histo1D(("recoil_mass_nmone", "", *bins_m_Z), "recoil_mass"))
     results.append(df.Histo1D(("recoil_mass_corrected_nmone", "", *bins_m_Z), "recoil_mass_corrected"))
     df.Filter("recoil_mass > 110 && recoil_mass < 145")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut5", "nominal_weight"))
+
+    ####################
+    ### Cut 6: Visible Energy and Visible Mass 
+    ####################
+    results.append(df.Histo1D(("vis_theta_nmone", "", *bins_theta), "vis_theta", "nominal_weight"))
+    df = df.Filter("vis_M > 150")
+    df = df.Filter("vis_E > 150")
+    df = df.Filter("vis_theta > 0.15 && vis_theta < 3.0")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6", "nominal_weight"))
 
 
-    ####################
-    ### Cut 7: Z-Mass
-    ####################
-    results.append(df.Histo1D(("Z_mass_nmone", "", *bins_m_Z), "Z_mass", "nominal_weight"))
-    df = df.Filter("Z_mass > 60 && Z_mass < 100")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7", "nominal_weight"))
+    for x in range(1, 9):
+        results.append(df.Histo1D(("d_{}{}_nmone".format(x, x+1), "", *bins_dij), "d_{}{}".format(x,x+1)))
 
 
-    
     ####################
-    ### Cut 8: Z-Momentum  
-    ####################
-    results.append(df.Histo1D(("Z_p_nmone", "", *bins_p_ll), "Z_p"))
-    df = df.Filter("Z_p >= 20 && Z_p <= 60")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8", "nominal_weight"))
-    
-
-    ####################
-    ### Cut 9: WW and ZZ Rejection 
+    ### Cut 7: WW and ZZ Rejection 
     #################### 
     df = df.Define("chi", "sqrt( pow((Z_mass - 91.2) , 2) + pow((recoil_mass - 125), 2))")
     df = df.Define("W_chi", "sqrt( pow((Z_mass - 80.38) , 2) + pow((recoil_mass - 80.38), 2))")
@@ -887,7 +876,7 @@ def build_graph(df, dataset):
     #df = df.Filter("chi < W_chi && chi < Z_chi")
     df = df.Filter("W_chi > 10")
     df = df.Filter("Z_chi > 10")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut9", "nominal_weight"))
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7", "nominal_weight"))
     
     
     
@@ -1102,7 +1091,8 @@ def build_graph(df, dataset):
 
   
     results.append(df.Histo1D(("jets_truth", "", *bins_pdgid), "jetsTruthPDG"))
-    results.append(df.Histo1D(("Best_Jets_Truth", "", *bins_pdgid), "BestJetsTruthPDG"))
+    results.append(df.Histo1D(("Best_Jets_TruthPDG", "", *bins_pdgid), "BestJetsTruthPDG"))
+    results.append(df.Histo1D(("Best_Jets_TruthZ", "", *bins_binary), "BestJetsTruthZ"))
     #results.append(df.Histo1D(("HiggsIdx", "", *bins_count), "HiggsIdx[0]"))
 
     results.append(df.Histo1D(("daughter_higgs", "", *bins_pdgid), "daughter_higgs"))

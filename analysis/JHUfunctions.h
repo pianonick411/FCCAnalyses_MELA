@@ -426,12 +426,13 @@ std::pair<Vec_i, Vec_i> BestJetTruthFinder(Vec_tlv Jets_Tlv, Vec_mc mc, int qIdx
     Vec_i usedIdx;
     Vec_i PDGresult;
     Vec_i ZTruthresult; 
-    std_pair <int, int> IdxHolder; 
+    std::pair<int, int> IdxHolder; 
     std::pair<Vec_i, Vec_i> result; 
+    IdxHolder.first = 0; 
+    IdxHolder.second = 0; 
 
     for(size_t iJet = 0; iJet < Jets_Tlv.size(); ++iJet) {
-        IdxHolder.first = 0; 
-        IdxHolder.second = 0; 
+        
         Vec_d dr;
         for(size_t iGen = 0; iGen < genQuarks.size(); ++iGen) {
             if(std::find(usedIdx.begin(), usedIdx.end(), iGen) != usedIdx.end()) {
@@ -456,11 +457,11 @@ std::pair<Vec_i, Vec_i> BestJetTruthFinder(Vec_tlv Jets_Tlv, Vec_mc mc, int qIdx
             IdxHolder.second = maxDrIdx; 
         }
     }
+        // cout << "This is first index: " << IdxHolder.first << endl; 
+        // cout << "This is second index: " << IdxHolder.second << endl; 
     if((IdxHolder.first == qIdx && IdxHolder.second == qBarIdx) || (IdxHolder.first == qBarIdx && IdxHolder.second == qIdx)){
+
         ZTruthresult.push_back(1);
-    }
-    else(){
-        ZTruthresult.push_back(0);
     }
     result.first = PDGresult; 
     result.second = ZTruthresult; 

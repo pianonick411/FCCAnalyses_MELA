@@ -188,7 +188,7 @@ hists["cutFlow"] = {
     "logy":     True,
     "stack":    False,
     "xmin":     0,
-    "xmax":     10,
+    "xmax":     8,
     "ymin":     1e3,
     "ymax":     1e11,
     "xtitle":   ["All events", f"e <= 2", f"p(e) < 20 GeV", f"mu <= 2", f"p(mu) < 20 GeV", "vis_M, vis_E > 150 GeV, 0.15 < vis_theta < 3.0", "110 < mRec < 145", "60 < m(Z) < 100", "20 < p(Z) < 60", "W_chi & Z_chi > 10"],
