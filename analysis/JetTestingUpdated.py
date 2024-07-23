@@ -21,7 +21,7 @@ def print_process_id():
 # list of processes
 processList = {
     # main backgrounds
-    #'p8_ee_WW_ecm240': {'fraction':0.0001},
+    'p8_ee_WW_ecm240': {'fraction':0.0001},
     'p8_ee_ZZ_ecm240': {'fraction':0.001},
     #'wzp6_ee_tautau_ecm240': {'fraction':1},
     #'wzp6_ee_mumu_ecm240' if flavor=="mumu" else 'wzp6_ee_ee_Mee_30_150_ecm240': {'fraction':1},
@@ -45,7 +45,7 @@ processList = {
 
 
 
-# f'wzp6_ee_bbH_Hbb_ecm240': {'fraction':0.01},
+ f'wzp6_ee_bbH_Hbb_ecm240': {'fraction':0.01},
 #    f'wzp6_ee_bbH_Hcc_ecm240': {'fraction':0.01},
 #      f'wzp6_ee_bbH_Hss_ecm240': {'fraction':0.01},
 #      f'wzp6_ee_bbH_Hgg_ecm240': {'fraction':0.01},
@@ -88,7 +88,7 @@ includePaths = ["functions.h", "JHUfunctions.h"]
 
 
 #Optional: output directory, default is local running directory
-outputDir   = "FCCAnalysisOut/ZZComparison/"
+outputDir   = "FCCAnalysisOut/July23Set1/"
 
 #f"output_{flavor}/"
 
@@ -372,7 +372,7 @@ bins_recoil = (20000, 0, 200) # 10 MeV bins
 bins_recoil_fine = (20000, 120, 140) # 1 MeV bins 
 bins_cosThetaMiss = (10000, 0, 1)
 bins_pdgid = (52, -26.0, 26.0)
-bins_binary = (2, 0, 1)
+bins_binary = (2, 0, 2)
 
 bins_theta = (500, -5, 5)
 bins_eta = (600, -3, 3)
@@ -497,6 +497,88 @@ def build_graph(df, dataset):
     df = df.Define("positronE","FCCAnalyses::MCParticle::get_e(positronVec_MC)" )
     df = df.Define("positronPz", "positronTLV[0].Pz()")
     df = df.Define("positronDaus", "FCCAnalyses::ZHfunctions::gen_decay_list_inc_higgs({5}, Particle, Particle1)")
+    df = df.Define("positronDausIdx", "FCCAnalyses::JHUfunctions::get_gen_daus(5, Particle, Particle1)")
+
+
+
+    #Investingating these particles that the Best Jets are paired to at truth: 
+
+    # df = df.Define("ParticleZeroMC", "FCCAnalyses::MCParticle::sel_byIndex(0, Particle)")
+    # df = df.Define("ParticleZeroVec_MC", "ROOT::VecOps::RVec<edm4hep::MCParticleData>{ParticleZeroMC}")
+    # df = df.Define("ParticleZeroGenStatus", "FCCAnalyses::MCParticle::get_genStatus(ParticleZeroVec_MC)")
+    # df = df.Define("ParticleZeroSimStatus", "FCCAnalyses::MCParticle::get_simStatus(ParticleZeroVec_MC)")
+    # df = df.Define("ParticleZeroPDG", "FCCAnalyses::MCParticle::get_pdg(ParticleZeroVec_MC)")
+    # df = df.Define("ParticleZeroTLV", "FCCAnalyses::JHUfunctions::makeLorentzVectors(ParticleZeroVec_MC)")
+    # df = df.Define("ParticleZeroE","FCCAnalyses::MCParticle::get_e(ParticleZeroVec_MC)" )
+    # df = df.Define("ParticleZeroPz", "ParticleZeroTLV[0].Pz()")
+    # df = df.Define("ParticleZeroDaus", "FCCAnalyses::ZHfunctions::gen_decay_list_inc_higgs({0}, Particle, Particle1)")
+    # df = df.Define("ParticleZeroDausIdx", "FCCAnalyses::JHUfunctions::get_gen_daus(0, Particle, Particle1)")
+
+
+    # df = df.Define("ParticleOneMC", "FCCAnalyses::MCParticle::sel_byIndex(1, Particle)")
+    # df = df.Define("ParticleOneVec_MC", "ROOT::VecOps::RVec<edm4hep::MCParticleData>{ParticleOneMC}")
+    # df = df.Define("ParticleOneGenStatus", "FCCAnalyses::MCParticle::get_genStatus(ParticleOneVec_MC)")
+    # df = df.Define("ParticleOneSimStatus", "FCCAnalyses::MCParticle::get_simStatus(ParticleOneVec_MC)")
+    # df = df.Define("ParticleOnePDG", "FCCAnalyses::MCParticle::get_pdg(ParticleOneVec_MC)")
+    # df = df.Define("ParticleOneTLV", "FCCAnalyses::JHUfunctions::makeLorentzVectors(ParticleOneVec_MC)")
+    # df = df.Define("ParticleOneE","FCCAnalyses::MCParticle::get_e(ParticleOneVec_MC)" )
+    # df = df.Define("ParticleOnePz", "ParticleOneTLV[0].Pz()")
+    # df = df.Define("ParticleOneDaus", "FCCAnalyses::ZHfunctions::gen_decay_list_inc_higgs({1}, Particle, Particle1)")
+    # df = df.Define("ParticleOneDausIdx", "FCCAnalyses::JHUfunctions::get_gen_daus(1, Particle, Particle1)")
+
+    # df = df.Define("ParticleTwoMC", "FCCAnalyses::MCParticle::sel_byIndex(2, Particle)")
+    # df = df.Define("ParticleTwoVec_MC", "ROOT::VecOps::RVec<edm4hep::MCParticleData>{ParticleTwoMC}")
+    # df = df.Define("ParticleTwoGenStatus", "FCCAnalyses::MCParticle::get_genStatus(ParticleTwoVec_MC)")
+    # df = df.Define("ParticleTwoSimStatus", "FCCAnalyses::MCParticle::get_simStatus(ParticleTwoVec_MC)")
+    # df = df.Define("ParticleTwoPDG", "FCCAnalyses::MCParticle::get_pdg(ParticleTwoVec_MC)")
+    # df = df.Define("ParticleTwoTLV", "FCCAnalyses::JHUfunctions::makeLorentzVectors(ParticleTwoVec_MC)")
+    # df = df.Define("ParticleTwoE","FCCAnalyses::MCParticle::get_e(ParticleTwoVec_MC)" )
+    # df = df.Define("ParticleTwoPz", "ParticleTwoTLV[0].Pz()")
+    # df = df.Define("ParticleTwoDaus", "FCCAnalyses::ZHfunctions::gen_decay_list_inc_higgs({2}, Particle, Particle1)")
+    # df = df.Define("ParticleTwoDausIdx", "FCCAnalyses::JHUfunctions::get_gen_daus(6, Particle, Particle1)")
+
+    # df = df.Define("ParticleThreeMC", "FCCAnalyses::MCParticle::sel_byIndex(3, Particle)")
+    # df = df.Define("ParticleThreeVec_MC", "ROOT::VecOps::RVec<edm4hep::MCParticleData>{ParticleThreeMC}")
+    # df = df.Define("ParticleThreeGenStatus", "FCCAnalyses::MCParticle::get_genStatus(ParticleThreeVec_MC)")
+    # df = df.Define("ParticleThreeSimStatus", "FCCAnalyses::MCParticle::get_simStatus(ParticleThreeVec_MC)")
+    # df = df.Define("ParticleThreePDG", "FCCAnalyses::MCParticle::get_pdg(ParticleThreeVec_MC)")
+    # df = df.Define("ParticleThreeTLV", "FCCAnalyses::JHUfunctions::makeLorentzVectors(ParticleThreeVec_MC)")
+    # df = df.Define("ParticleThreeE","FCCAnalyses::MCParticle::get_e(ParticleThreeVec_MC)" )
+    # df = df.Define("ParticleThreePz", "ParticleThreeTLV[0].Pz()")
+    # df = df.Define("ParticleThreeDaus", "FCCAnalyses::ZHfunctions::gen_decay_list_inc_higgs({3}, Particle, Particle1)")
+    # df = df.Define("ParticleThreeDausIdx", "FCCAnalyses::JHUfunctions::get_gen_daus(3, Particle, Particle1)")
+
+
+    # df = df.Define("ParticleSixMC", "FCCAnalyses::MCParticle::sel_byIndex(6, Particle)")
+    # df = df.Define("ParticleSixVec_MC", "ROOT::VecOps::RVec<edm4hep::MCParticleData>{ParticleSixMC}")
+    # df = df.Define("ParticleSixGenStatus", "FCCAnalyses::MCParticle::get_genStatus(ParticleSixVec_MC)")
+    # df = df.Define("ParticleSixSimStatus", "FCCAnalyses::MCParticle::get_simStatus(ParticleSixVec_MC)")
+    # df = df.Define("ParticleSixPDG", "FCCAnalyses::MCParticle::get_pdg(ParticleSixVec_MC)")
+    # df = df.Define("ParticleSixTLV", "FCCAnalyses::JHUfunctions::makeLorentzVectors(ParticleSixVec_MC)")
+    # df = df.Define("ParticleSixE","FCCAnalyses::MCParticle::get_e(ParticleSixVec_MC)" )
+    # df = df.Define("ParticleSixPz", "ParticleSixTLV[0].Pz()")
+    # df = df.Define("ParticleSixDaus", "FCCAnalyses::ZHfunctions::gen_decay_list_inc_higgs({6}, Particle, Particle1)")
+    # df = df.Define("ParticleSixDausIdx", "FCCAnalyses::JHUfunctions::get_gen_daus(6, Particle, Particle1)")
+
+
+    # df = df.Define("ParticleSevenMC", "FCCAnalyses::MCParticle::sel_byIndex(7, Particle)")
+    # df = df.Define("ParticleSevenVec_MC", "ROOT::VecOps::RVec<edm4hep::MCParticleData>{ParticleSevenMC}")
+    # df = df.Define("ParticleSevenGenStatus", "FCCAnalyses::MCParticle::get_genStatus(ParticleSevenVec_MC)")
+    # df = df.Define("ParticleSevenSimStatus", "FCCAnalyses::MCParticle::get_simStatus(ParticleSevenVec_MC)")
+    # df = df.Define("ParticleSevenPDG", "FCCAnalyses::MCParticle::get_pdg(ParticleSevenVec_MC)")
+    # df = df.Define("ParticleSevenTLV", "FCCAnalyses::JHUfunctions::makeLorentzVectors(ParticleSevenVec_MC)")
+    # df = df.Define("ParticleSevenE","FCCAnalyses::MCParticle::get_e(ParticleSevenVec_MC)" )
+    # df = df.Define("ParticleSevenPz", "ParticleSevenTLV[0].Pz()")
+    # df = df.Define("ParticleSevenDaus", "FCCAnalyses::ZHfunctions::gen_decay_list_inc_higgs({7}, Particle, Particle1)")
+    # df = df.Define("ParticleSevenDausIdx", "FCCAnalyses::JHUfunctions::get_gen_daus(7, Particle, Particle1)")
+
+
+    
+   
+
+
+
+
 
     
 
@@ -646,8 +728,92 @@ def build_graph(df, dataset):
     # df = df.Define("higgsGenStatus", "FCCAnalyses::MCParticle::get_genStatus(higgsVec_MC)")
     # df = df.Define("higgsSimStatus", "FCCAnalyses::MCParticle::get_simStatus(higgsVec_MC)")
     # df = df.Define("higgsMCTLV", "FCCAnalyses::JHUfunctions::makeLorentzVectors(higgsVec_MC)")
+    results.append(df.Histo1D(("daughter_higgs", "", *bins_pdgid), "daughter_higgs"))
+    results.append(df.Histo1D(("daughter_higgs0", "", *bins_pdgid), "daughter_higgs0"))
+    results.append(df.Histo1D(("HiggsIdx", "", *bins_count), "higgs_MC"))
+    results.append(df.Histo1D(("higgs_mass_MC", "", *bins_recoil), "higgs_mass_MC"))
+    # results.append(df.Histo1D(("higgsE", "", *bins_p_mu), "higgsE"))
+
+    
+    results.append(df.Histo1D(("higgsParents", "", *bins_pdgid), "higgsParents"))
+    # results.append(df.Histo1D(("higgsParent1", "", *bins_pdgid), "higgsParent_1"))
+    # results.append(df.Histo1D(("higgsParent2", "", *bins_pdgid), "higgsParent_2"))
+    results.append(df.Histo1D(("electronPDG", "", *bins_pdgid), "electronPDG"))
+    results.append(df.Histo1D(("electronE", "", *bins_p_mu), "electronE"))
+    results.append(df.Histo1D(("electronPz", "", *bins_p_mubeeg), "electronPz"))
+    results.append(df.Histo1D(("electronDaus", "", *bins_pdgid), "electronDaus"))
+    results.append(df.Histo1D(("electronDausIdx", "", *bins_pdgid), "electronDausIdx"))
+    results.append(df.Histo1D(("electronGenStatus", "", *bins_count), "electronGenStatus"))
+    results.append(df.Histo1D(("electronSimStatus", "", *bins_count), "electronSimStatus"))
+
+    results.append(df.Histo1D(("positronPDG", "", *bins_pdgid), "positronPDG"))
+    results.append(df.Histo1D(("positronE", "", *bins_p_mu), "positronE"))
+    results.append(df.Histo1D(("positronPz", "", *bins_p_mubeeg), "positronPz"))
+    results.append(df.Histo1D(("positronDaus", "", *bins_pdgid), "positronDaus"))
+    results.append(df.Histo1D(("positronGenStatus", "", *bins_count), "positronGenStatus"))
+    results.append(df.Histo1D(("positronSimStatus", "", *bins_count), "positronSimStatus"))
+
+    results.append(df.Histo1D(("AllPDGs", "", *bins_pdgid), "AllPDGs"))
+
+    results.append(df.Histo1D(("higgsPDG", "", *bins_pdgid), "higgsPDG"))
+    results.append(df.Histo1D(("qBarPDG", "", *bins_pdgid), "qBarPDG"))
+    results.append(df.Histo1D(("qBarE", "", *bins_p_mu), "qBarE"))
+    results.append(df.Histo1D(("qBarPhi", "", *bins_phi), "qBarPhi"))
+
+    results.append(df.Histo1D(("qPDG", "", *bins_pdgid), "qPDG"))
+    results.append(df.Histo1D(("PDGTest", "", *bins_pdgid), "PDGTest"))
+    results.append(df.Histo1D(("qE", "", *bins_p_mu), "qE"))
+    results.append(df.Histo1D(("qPhi", "", *bins_phi), "qPhi"))
+
+  
+    # results.append(df.Histo1D(("ParticleZeroGenStatus", "", *bins_count), "ParticleZeroGenStatus"))
+    # results.append(df.Histo1D(("ParticleZeroSimStatus", "", *bins_count), "ParticleZeroSimStatus"))
+    # results.append(df.Histo1D(("ParticleZeroPDG", "", *bins_pdgid), "ParticleZeroPDG"))
+    # results.append(df.Histo1D(("ParticleZeroE", "", *bins_p_mu), "ParticleZeroE"))
+    # results.append(df.Histo1D(("ParticleZeroPz", "", *bins_p_mubeeg), "ParticleZeroPz"))
+    # results.append(df.Histo1D(("ParticleZeroDaus", "", *bins_pdgid), "ParticleZeroDaus"))
+    # results.append(df.Histo1D(("ParticleZeroDausIdx", "", *bins_pdgid), "ParticleZeroDausIdx"))
 
 
+    # results.append(df.Histo1D(("ParticleOneGenStatus", "", *bins_count), "ParticleOneGenStatus"))
+    # results.append(df.Histo1D(("ParticleOneSimStatus", "", *bins_count), "ParticleOneSimStatus"))
+    # results.append(df.Histo1D(("ParticleOnePDG", "", *bins_pdgid), "ParticleOnePDG"))
+    # results.append(df.Histo1D(("ParticleOneE", "", *bins_p_mu), "ParticleOneE"))
+    # results.append(df.Histo1D(("ParticleOnePz", "", *bins_p_mubeeg), "ParticleOnePz"))
+    # results.append(df.Histo1D(("ParticleOneDaus", "", *bins_pdgid), "ParticleOneDaus"))
+    # results.append(df.Histo1D(("ParticleOneDausIdx", "", *bins_pdgid), "ParticleOneDausIdx"))
+
+    # results.append(df.Histo1D(("ParticleTwoGenStatus", "", *bins_count), "ParticleTwoGenStatus"))
+    # results.append(df.Histo1D(("ParticleTwoSimStatus", "", *bins_count), "ParticleTwoSimStatus"))
+    # results.append(df.Histo1D(("ParticleTwoPDG", "", *bins_pdgid), "ParticleTwoPDG"))
+    # results.append(df.Histo1D(("ParticleTwoE", "", *bins_p_mu), "ParticleTwoE"))
+    # results.append(df.Histo1D(("ParticleTwoPz", "", *bins_p_mubeeg), "ParticleTwoPz"))
+    # results.append(df.Histo1D(("ParticleTwoDaus", "", *bins_pdgid), "ParticleTwoDaus"))
+    # results.append(df.Histo1D(("ParticleTwoDausIdx", "", *bins_pdgid), "ParticleTwoDausIdx"))
+
+    # results.append(df.Histo1D(("ParticleThreeGenStatus", "", *bins_count), "ParticleThreeGenStatus"))
+    # results.append(df.Histo1D(("ParticleThreeSimStatus", "", *bins_count), "ParticleThreeSimStatus"))
+    # results.append(df.Histo1D(("ParticleThreePDG", "", *bins_pdgid), "ParticleThreePDG"))
+    # results.append(df.Histo1D(("ParticleThreeE", "", *bins_p_mu), "ParticleThreeE"))
+    # results.append(df.Histo1D(("ParticleThreePz", "", *bins_p_mubeeg), "ParticleThreePz"))
+    # results.append(df.Histo1D(("ParticleThreeDaus", "", *bins_pdgid), "ParticleThreeDaus"))
+    # results.append(df.Histo1D(("ParticleThreeDausIdx", "", *bins_pdgid), "ParticleThreeDausIdx"))
+
+    # results.append(df.Histo1D(("ParticleSixGenStatus", "", *bins_count), "ParticleSixGenStatus"))
+    # results.append(df.Histo1D(("ParticleSixSimStatus", "", *bins_count), "ParticleSixSimStatus"))
+    # results.append(df.Histo1D(("ParticleSixPDG", "", *bins_pdgid), "ParticleSixPDG"))
+    # results.append(df.Histo1D(("ParticleSixE", "", *bins_p_mu), "ParticleSixE"))
+    # results.append(df.Histo1D(("ParticleSixPz", "", *bins_p_mubeeg), "ParticleSixPz"))
+    # results.append(df.Histo1D(("ParticleSixDaus", "", *bins_pdgid), "ParticleSixDaus"))
+    # results.append(df.Histo1D(("ParticleSixDausIdx", "", *bins_pdgid), "ParticleSixDausIdx"))
+
+    # results.append(df.Histo1D(("ParticleSevenGenStatus", "", *bins_count), "ParticleSevenGenStatus"))
+    # results.append(df.Histo1D(("ParticleSevenSimStatus", "", *bins_count), "ParticleSevenSimStatus"))
+    # results.append(df.Histo1D(("ParticleSevenPDG", "", *bins_pdgid), "ParticleSevenPDG"))
+    # results.append(df.Histo1D(("ParticleSevenE", "", *bins_p_mu), "ParticleSevenE"))
+    # results.append(df.Histo1D(("ParticleSevenPz", "", *bins_p_mubeeg), "ParticleSevenPz"))
+    # results.append(df.Histo1D(("ParticleSevenDaus", "", *bins_pdgid), "ParticleSevenDaus"))
+    # results.append(df.Histo1D(("ParticleSevenDausIdx", "", *bins_pdgid), "ParticleSevenDausIdx"))
 
 
     # define cutflow variables
@@ -1095,42 +1261,25 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("Best_Jets_TruthZ", "", *bins_binary), "BestJetsTruthZ"))
     #results.append(df.Histo1D(("HiggsIdx", "", *bins_count), "HiggsIdx[0]"))
 
-    results.append(df.Histo1D(("daughter_higgs", "", *bins_pdgid), "daughter_higgs"))
-    results.append(df.Histo1D(("daughter_higgs0", "", *bins_pdgid), "daughter_higgs0"))
-    results.append(df.Histo1D(("HiggsIdx", "", *bins_count), "higgs_MC"))
-    results.append(df.Histo1D(("higgs_mass_MC", "", *bins_recoil), "higgs_mass_MC"))
-    # results.append(df.Histo1D(("higgsE", "", *bins_p_mu), "higgsE"))
+    df = df.Filter("BestJetsTruthZ = 1.0")
+
+    results.append(df.Histo1D(("Z_massTrueJets", "", *bins_m_Z), "Z_mass"))
+    results.append(df.Histo1D(("Z_Mass_MCTrueJets", "", *bins_m_Z), "Z_Mass_MC"))
+    results.append(df.Histo1D(("Z_ptTrueJets", "", *bins_p_ll), "Z_pt"))
+    results.append(df.Histo1D(("Z_pt_MCTrueJets", "", *bins_p_ll), "Z_pt_MC"))
+    results.append(df.Histo1D(("Z_pTrueJets", "", *bins_p_ll), "Z_p"))
+
+    results.append(df.Histo1D(("recoil_massTrueJets", "", *bins_m_Z), "recoil_mass"))
+    results.append(df.Histo1D(("recoil_mass_correctedTrueJets", "", *bins_m_Z), "recoil_mass_corrected"))
+
+
+    results.append(df.Histo1D(("cos_1TrueJets", "", *bins_cos), "cos_1"))
+    results.append(df.Histo1D(("cos_2TrueJets", "", *bins_cos), "cos_2"))
+    results.append(df.Histo1D(("cos_2_correctedTrueJets", "", *bins_cos), "cos_2_corrected"))
+    results.append(df.Histo1D(("phiTrueJets", "", *bins_phiMELA), "phi"))
+
 
     
-    results.append(df.Histo1D(("higgsParents", "", *bins_pdgid), "higgsParents"))
-    # results.append(df.Histo1D(("higgsParent1", "", *bins_pdgid), "higgsParent_1"))
-    # results.append(df.Histo1D(("higgsParent2", "", *bins_pdgid), "higgsParent_2"))
-    results.append(df.Histo1D(("electronPDG", "", *bins_pdgid), "electronPDG"))
-    results.append(df.Histo1D(("electronE", "", *bins_p_mu), "electronE"))
-    results.append(df.Histo1D(("electronPz", "", *bins_p_mubeeg), "electronPz"))
-    results.append(df.Histo1D(("electronDaus", "", *bins_pdgid), "electronDaus"))
-    results.append(df.Histo1D(("electronDausIdx", "", *bins_pdgid), "electronDausIdx"))
-    results.append(df.Histo1D(("electronGenStatus", "", *bins_count), "electronGenStatus"))
-    results.append(df.Histo1D(("electronSimStatus", "", *bins_count), "electronSimStatus"))
-
-    results.append(df.Histo1D(("positronPDG", "", *bins_pdgid), "positronPDG"))
-    results.append(df.Histo1D(("positronE", "", *bins_p_mu), "positronE"))
-    results.append(df.Histo1D(("positronPz", "", *bins_p_mubeeg), "positronPz"))
-    results.append(df.Histo1D(("positronDaus", "", *bins_pdgid), "positronDaus"))
-    results.append(df.Histo1D(("positronGenStatus", "", *bins_count), "positronGenStatus"))
-    results.append(df.Histo1D(("positronSimStatus", "", *bins_count), "positronSimStatus"))
-
-    results.append(df.Histo1D(("AllPDGs", "", *bins_pdgid), "AllPDGs"))
-
-    results.append(df.Histo1D(("higgsPDG", "", *bins_pdgid), "higgsPDG"))
-    results.append(df.Histo1D(("qBarPDG", "", *bins_pdgid), "qBarPDG"))
-    results.append(df.Histo1D(("qBarE", "", *bins_p_mu), "qBarE"))
-    results.append(df.Histo1D(("qBarPhi", "", *bins_phi), "qBarPhi"))
-
-    results.append(df.Histo1D(("qPDG", "", *bins_pdgid), "qPDG"))
-    results.append(df.Histo1D(("PDGTest", "", *bins_pdgid), "PDGTest"))
-    results.append(df.Histo1D(("qE", "", *bins_p_mu), "qE"))
-    results.append(df.Histo1D(("qPhi", "", *bins_phi), "qPhi"))
 
 
 

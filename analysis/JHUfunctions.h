@@ -413,14 +413,17 @@ std::pair<Vec_i, Vec_i> BestJetTruthFinder(Vec_tlv Jets_Tlv, Vec_mc mc, int qIdx
 
     Vec_tlv genQuarks; // Lorentz-vector of potential partons (gen-level)
     Vec_i genQuarks_pdgId; // corresponding PDG ID
+    Vec_i genQuarks_Idx; // correspondning Index in the MC collection 
     for(size_t i = 0; i < mc.size(); ++i) {
         int pdgid = abs(mc.at(i).PDG);
         if(pdgid > 6 and not findGluons) continue; // only quarks 
         if(pdgid > 6 and pdgid != 21 and findGluons) continue; // only quarks and gluons
+       //cout << "This is an allowed PDG: " << mc.at(i).PDG << endl; 
         TLorentzVector tlv;
         tlv.SetXYZM(mc.at(i).momentum.x,mc.at(i).momentum.y,mc.at(i).momentum.z,mc.at(i).mass);
         genQuarks.push_back(tlv);
         genQuarks_pdgId.push_back(mc.at(i).PDG);
+        genQuarks_Idx.push_back(i); 
     }
 
     Vec_i usedIdx;
@@ -449,16 +452,18 @@ std::pair<Vec_i, Vec_i> BestJetTruthFinder(Vec_tlv Jets_Tlv, Vec_mc mc, int qIdx
         PDGresult.push_back(genQuarks_pdgId[maxDrIdx]);
         if(iJet == 0){
             //If Jet1
-            IdxHolder.first = maxDrIdx; 
+            IdxHolder.first = genQuarks_Idx[maxDrIdx]; 
 
         }
         if(iJet == 1){
             //if Jet2
-            IdxHolder.second = maxDrIdx; 
+            IdxHolder.second = genQuarks_Idx[maxDrIdx]; 
         }
     }
-        // cout << "This is first index: " << IdxHolder.first << endl; 
+        // cout << "This is first index: " << IdxHolder.first << endl;  
+        // cout << "This is the genQuark idx: " << qIdx << endl; 
         // cout << "This is second index: " << IdxHolder.second << endl; 
+        // cout << "This is the genAntiquark idx: " << qBarIdx << endl;
     if((IdxHolder.first == qIdx && IdxHolder.second == qBarIdx) || (IdxHolder.first == qBarIdx && IdxHolder.second == qIdx)){
 
         ZTruthresult.push_back(1);
