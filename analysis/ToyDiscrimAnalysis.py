@@ -18,7 +18,7 @@ def print_process_id():
 processList = {
     # main backgrounds
  #  'p8_ee_WW_ecm240': {'fraction':1},
-   'p8_ee_ZZ_ecm240': {'fraction':0.001},
+ #  'p8_ee_ZZ_ecm240': {'fraction':0.001},
  #  'wzp6_ee_tautau_ecm240': {'fraction':1},
  #  'wzp6_ee_mumu_ecm240' if flavor=="mumu" else 'wzp6_ee_ee_Mee_30_150_ecm240': {'fraction':1},
 
@@ -30,7 +30,7 @@ processList = {
   #  'wzp6_ee_nuenueZ_ecm240': {'fraction':1},
     
     # signal
- #  f'wzp6_ee_{flavor}H_ecm240': {'fraction':1},
+   f'wzp6_ee_{flavor}H_ecm240': {'fraction':0.01},
 }
 
 #if do_mass:
@@ -57,7 +57,7 @@ includePaths = ["functions.h", "JHUfunctions.h"]
 
 
 #Optional: output directory, default is local running directory
-outputDir   = "FCCAnalysisOut/ZZComparison/"
+outputDir   = "/eos/user/n/nipinto/FCCAnalyses_MELA/analysis/FCCAnalysisOut/SignalComparison"
 
 #f"output_{flavor}/"
 
@@ -497,9 +497,9 @@ def build_graph(df, dataset):
     # final histograms
    #results.append(df.Histo1D(("parent1pdg", "", *bins_count), "parent1pdg", "nominal_weight"))
     results.append(df.Histo1D(("leps_p", "", *bins_p_mu), "leps_p", "nominal_weight"))
-    results.append(df.Histo1D(("zll_p", "", *bins_p_mu), "zll_p", "nominal_weight"))
-    results.append(df.Histo1D(("zll_m", "", *bins_m_ll), "zll_m", "nominal_weight"))
-    results.append(df.Histo1D(("zll_recoil_m", "", *bins_recoil), "zll_recoil_m", "nominal_weight"))
+    results.append(df.Histo1D(("Z_p", "", *bins_p_mu), "zll_p", "nominal_weight"))
+    results.append(df.Histo1D(("Z_mass", "", *bins_m_ll), "zll_m", "nominal_weight"))
+    results.append(df.Histo1D(("recoil_mass", "", *bins_recoil), "zll_recoil_m", "nominal_weight"))
 
     results.append(df.Histo1D(("cos_1", "", *bins_cos), "cos_1", "nominal_weight"))
     results.append(df.Histo1D(("cos_1_no_weight", "", *bins_cos), "cos_1"))

@@ -213,7 +213,7 @@ std::pair<Vec_tlv, std::pair<int, int>> get_best_jet_pair(float DesiredMass, flo
     float MRec = 9999999999.9; 
     float ScoreOld = 9999999999.9; 
 
-    float chi_squared_frac = 0.0; 
+    float chi_squared_frac = 0.2; 
     std::pair<int, int> GoodJets; //indices of the GoodJets 
      
     
@@ -373,6 +373,7 @@ Vec_i jetTruthFinder(std::vector<std::vector<int>> constituents, Vec_rp reco, Ve
 Vec_i jetTruthFinder(Vec_tlv Jets_Tlv, Vec_mc mc, bool findGluons = false) {
     // jet truth=finder: match the gen-level partons (eventually with gluons) with the jet constituents
     // matching by mimimizing the sum of dr of the parton and all the jet constituents 
+    // Built off of Jan Eysermans' jetTruthFinder functon. 
 
     Vec_tlv genQuarks; // Lorentz-vector of potential partons (gen-level)
     Vec_i genQuarks_pdgId; // corresponding PDG ID
@@ -410,6 +411,7 @@ Vec_i jetTruthFinder(Vec_tlv Jets_Tlv, Vec_mc mc, bool findGluons = false) {
 
 std::pair<Vec_i, Vec_i> BestJetTruthFinder(Vec_tlv Jets_Tlv, Vec_mc mc, int qIdx, int qBarIdx, bool findGluons = false) {
     // To be used on the best 2 jets in order to return both their PDG and whether or not they form the associated Z in ZH production. 
+    // Built off of Jan Eysermans' jetTruthFinder functon. 
 
     Vec_tlv genQuarks; // Lorentz-vector of potential partons (gen-level)
     Vec_i genQuarks_pdgId; // corresponding PDG ID

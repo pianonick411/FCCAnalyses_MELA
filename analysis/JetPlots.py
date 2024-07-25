@@ -10,10 +10,10 @@ delphesVersion  = '3.4.2'
 energy          = 240.0
 collider        = 'FCC-ee'
 #inputDir        = f'output_{flavor}/'
-inputDir        = 'jetTests/July18TestsSet3'
+inputDir        = '/eos/user/n/nipinto/FCCAnalyses_MELA/analysis/FCCAnalysisOut/July25Set1'
 formats         = ['pdf', 'png']
 #outdir          = f'plots_{flavor}/'
-outdir          = 'jetPlots/July18ScaledSig'
+outdir          = 'jetPlots/July25Set1'
 plotStatUnc     = False
 
 colors = {}
@@ -24,23 +24,13 @@ colors['ZZ']    = ROOT.TColor.GetColor(222, 90, 106)
 
 
 procs = {}
-procs['signal'] =   {'ZH_0+':[f'wzp6_ee_qqH_ecm240', f'wzp6_ee_bbH_Hbb_ecm240', f'wzp6_ee_bbH_Hcc_ecm240', f'wzp6_ee_bbH_Hss_ecm240',f'wzp6_ee_bbH_Hgg_ecm240','wzp6_ee_bbH_Htautau_ecm240',
-   'wzp6_ee_bbH_HZZ_ecm240',
-   'wzp6_ee_bbH_HWW_ecm240',
-f'wzp6_ee_ccH_Hbb_ecm240',
-    f'wzp6_ee_ccH_Hcc_ecm240',
-    f'wzp6_ee_ccH_Hss_ecm240',
-    f'wzp6_ee_ccH_Hgg_ecm240',
-   'wzp6_ee_ccH_Htautau_ecm240',
-   'wzp6_ee_ccH_HZZ_ecm240',
-   'wzp6_ee_ccH_HWW_ecm240',
-f'wzp6_ee_ssH_Hbb_ecm240',
-    f'wzp6_ee_ssH_Hcc_ecm240',
-    f'wzp6_ee_ssH_Hss_ecm240',
-    f'wzp6_ee_ssH_Hgg_ecm240',
-    'wzp6_ee_ssH_Htautau_ecm240',
-   'wzp6_ee_ssH_HZZ_ecm240',
-   'wzp6_ee_ssH_HWW_ecm240',
+procs['signal'] =   {'ZH_0+':[f'wzp6_ee_bbH_Hbb_ecm240',
+   f'wzp6_ee_bbH_Hcc_ecm240',
+     f'wzp6_ee_bbH_Hss_ecm240',
+     f'wzp6_ee_bbH_Hgg_ecm240',
+     'wzp6_ee_bbH_Htautau_ecm240',
+  'wzp6_ee_bbH_HZZ_ecm240',
+  'wzp6_ee_bbH_HWW_ecm240',
 ]}
 procs['backgrounds'] = {}
 procs['backgrounds']['WW'] = ['p8_ee_WW_ecm240']
@@ -64,10 +54,22 @@ hists = {}
 hists["Z_mass"] = {
     "output":   "Z_mass",
     "logy":     False,
-    "stack":    False,
+    "stack":    True,
     "rebin":    20,
     "xmin":     60,
     "xmax":     100,
+    "xtitle":   f"m(Dijet) (GeV)",
+    "ytitle":   "Events ",
+    "scaleSig": 1
+}
+
+hists["Z_mass_nmone"] = {
+    "output":   "Z_mass_nmone",
+    "logy":     False,
+    "stack":    False,
+    "rebin":    20,
+    "xmin":     0,
+    "xmax":     120,
     "xtitle":   f"m(Dijet) (GeV)",
     "ytitle":   "Events ",
     "scaleSig": 100
@@ -76,14 +78,27 @@ hists["Z_mass"] = {
 hists["Z_p"] = {
     "output":   "Z_p",
     "logy":     False,
-    "stack":    False,
+    "stack":    True,
     "rebin":    2,
     "xmin":     20,
     "xmax":     60,
     "xtitle":   f"p(Dijet) (GeV)",
     "ytitle":   "Events ",
+    "scaleSig": 1
+}
+
+hists["Z_p_nmone"] = {
+    "output":   "Z_p_nmone",
+    "logy":     False,
+    "stack":    False,
+    "rebin":    2,
+    "xmin":     0,
+    "xmax":     100,
+    "xtitle":   f"p(Dijet) (GeV)",
+    "ytitle":   "Events ",
     "scaleSig": 100
 }
+
 
 
 hists["W_chi"] = {
@@ -95,7 +110,7 @@ hists["W_chi"] = {
     "xmax":     100,
     "xtitle":   f"W_chi",
     "ytitle":   "Events ",
-    "scaleSig": 100
+    "scaleSig": 1
 }
 
 hists["Z_chi"] = {
@@ -107,7 +122,7 @@ hists["Z_chi"] = {
     "xmax":     100,
     "xtitle":   f"Z_chi",
     "ytitle":   "Events ",
-    "scaleSig": 100
+    "scaleSig": 1
 }
 
 hists["chi"] = {
@@ -119,15 +134,27 @@ hists["chi"] = {
     "xmax":     100,
     "xtitle":   f"chi",
     "ytitle":   "Events ",
-    "scaleSig": 100
+    "scaleSig": 1
 }
 
 hists["recoil_mass"] = {
     "output":   "recoil_mass",
     "logy":     False,
-    "stack":    False,
+    "stack":    True,
     "rebin":    20,
     "xmin":     80,
+    "xmax":     160,
+    "xtitle":   f"m(Rec) (GeV)",
+    "ytitle":   "Events ",
+    "scaleSig": 1
+}
+
+hists["recoil_mass_nmone"] = {
+    "output":   "recoil_mass_nmone",
+    "logy":     False,
+    "stack":    False,
+    "rebin":    20,
+    "xmin":     0,
     "xmax":     160,
     "xtitle":   f"m(Rec) (GeV)",
     "ytitle":   "Events ",
@@ -143,57 +170,68 @@ hists["recoil_mass_corrected"] = {
     "xmax":     160,
     "xtitle":   f"m(Rec) (GeV)",
     "ytitle":   "Events ",
-    "scaleSig": 100
+    "scaleSig": 1
 }
 
 hists["cos_1"] = {
     "output":   "cos_1",
     "logy":     False,
-    "stack":    False,
+    "stack":    True,
    # "rebin":    20,
     "xmin":     -1,
     "xmax":     1,
     "xtitle":   f"cos_1",
     "ytitle":   "Events ",
-    "scaleSig": 100
+    "scaleSig": 1
 }
 
 hists["cos_2_corrected"] = {
     "output":   "cos_2_corrected",
     "logy":     False,
-    "stack":    False,
+    "stack":    True,
     #"rebin":    20,
     "xmin":     -1,
     "xmax":     1,
     "xtitle":   f"cos_2_corrected",
     "ytitle":   "Events ",
-    "scaleSig": 100
+    "scaleSig": 1
 }
 
 hists["phi"] = {
     "output":   "phi",
     "logy":     False,
-    "stack":    False,
+    "stack":    True,
    # "rebin":    20,
     "xmin":     -3.1415,
     "xmax":     3.1415,
     "xtitle":   f"phi",
     "ytitle":   "Events ",
-    "scaleSig": 100
+    "scaleSig": 1
 }
 
+hists["BScoreSum_nmone"] = {
+    "output":   "BScoreSum_nmone",
+    "logy":     False,
+    "stack":    False,
+    # "rebin":    ,
+    "xmin":     0,
+    "xmax":     2,
+    "xtitle":   f"BScoreSum_nmone",
+    "ytitle":   "Events ",
+    "scaleSig": 1
+}
 
 hists["cutFlow"] = {
     "output":   "cutFlow",
     "logy":     True,
     "stack":    False,
     "xmin":     0,
-    "xmax":     8,
+    "xmax":     9,
     "ymin":     1e3,
     "ymax":     1e11,
     "xtitle":   ["All events", f"e <= 2", f"p(e) < 20 GeV", f"mu <= 2", f"p(mu) < 20 GeV", "vis_M, vis_E > 150 GeV, 0.15 < vis_theta < 3.0", "110 < mRec < 145", "60 < m(Z) < 100", "20 < p(Z) < 60", "W_chi & Z_chi > 10"],
     "ytitle":   "Events ",
-    "scaleSig": 10
+    "scaleSig": 1
 }
 
 

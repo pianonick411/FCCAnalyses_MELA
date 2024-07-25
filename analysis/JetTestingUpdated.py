@@ -1,9 +1,9 @@
 
 # analysis config
 do_gen = False # replace reco-particles by the corresponding gen particle
-do_weights = False
+do_weights = True
 
-jet_flavor = ""
+jet_flavor = "bb"
 
 
 import os, copy 
@@ -21,19 +21,19 @@ def print_process_id():
 # list of processes
 processList = {
     # main backgrounds
-    'p8_ee_WW_ecm240': {'fraction':0.0001},
-    'p8_ee_ZZ_ecm240': {'fraction':0.001},
+ 'p8_ee_WW_ecm240': {'fraction':1},
+'p8_ee_ZZ_ecm240': {'fraction':1},
     #'wzp6_ee_tautau_ecm240': {'fraction':1},
     #'wzp6_ee_mumu_ecm240' if flavor=="mumu" else 'wzp6_ee_ee_Mee_30_150_ecm240': {'fraction':1},
-    #'wzp6_ee_nunuH_ecm240': {'fraction':0.001},
-    #p8_ee_Zqq_ecm240
+    'wzp6_ee_nunuH_ecm240': {'fraction':1},
+    "p8_ee_Zqq_ecm240": {'fraction':1},
 
     # rare backgrounds
     #f'wzp6_egamma_eZ_Z{flavor}_ecm240': {'fraction':1},
     #f'wzp6_gammae_eZ_Z{flavor}_ecm240': {'fraction':1},
     #f'wzp6_gaga_{flavor}_60_ecm240': {'fraction':1},
     #'wzp6_gaga_tautau_60_ecm240': {'fraction':1},
-    #'wzp6_ee_nuenueZ_ecm240': {'fraction':0.001},
+    'wzp6_ee_nuenueZ_ecm240': {'fraction':1},
 
     #Backgrounds for Z --> bb\
 
@@ -45,13 +45,13 @@ processList = {
 
 
 
- f'wzp6_ee_bbH_Hbb_ecm240': {'fraction':0.01},
-#    f'wzp6_ee_bbH_Hcc_ecm240': {'fraction':0.01},
-#      f'wzp6_ee_bbH_Hss_ecm240': {'fraction':0.01},
-#      f'wzp6_ee_bbH_Hgg_ecm240': {'fraction':0.01},
-#      'wzp6_ee_bbH_Htautau_ecm240':{'fraction':0.01},
-#   'wzp6_ee_bbH_HZZ_ecm240':{'fraction':0.01},
-#   'wzp6_ee_bbH_HWW_ecm240':{'fraction':0.01},
+f'wzp6_ee_bbH_Hbb_ecm240': {'fraction':1},
+  f'wzp6_ee_bbH_Hcc_ecm240': {'fraction':1},
+     f'wzp6_ee_bbH_Hss_ecm240': {'fraction':1},
+     f'wzp6_ee_bbH_Hgg_ecm240': {'fraction':1},
+     'wzp6_ee_bbH_Htautau_ecm240':{'fraction':1},
+  'wzp6_ee_bbH_HZZ_ecm240':{'fraction':1},
+  'wzp6_ee_bbH_HWW_ecm240':{'fraction':1},
 
 
 
@@ -88,7 +88,7 @@ includePaths = ["functions.h", "JHUfunctions.h"]
 
 
 #Optional: output directory, default is local running directory
-outputDir   = "FCCAnalysisOut/July23Set1/"
+outputDir   = "FCCAnalysisOut/July25Set1/"
 
 #f"output_{flavor}/"
 
@@ -386,6 +386,7 @@ bins_cat = (10, 0, 10)
 bins_resolution = (10000, 0.95, 1.05)
 
 bins_jet_score = (100, 0, 1)
+bins_jet_scoreSum = (100, 0, 2)
 
 bins_cos = (100, -1.0, 1.0)
 bins_phiMELA = (100, -3.15, 3.15)
@@ -1012,7 +1013,7 @@ def build_graph(df, dataset):
     #################### 
     results.append(df.Histo1D(("recoil_mass_nmone", "", *bins_m_Z), "recoil_mass"))
     results.append(df.Histo1D(("recoil_mass_corrected_nmone", "", *bins_m_Z), "recoil_mass_corrected"))
-    df.Filter("recoil_mass > 110 && recoil_mass < 145")
+    df.Filter("recoil_mass > 110 && recoil_mass < 138")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut5", "nominal_weight"))
 
     ####################
@@ -1039,7 +1040,7 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("chi_nmone", "", *bins_m_Z), "chi"))
     results.append(df.Histo1D(("W_chi_nmone", "", *bins_m_Z), "W_chi"))
     results.append(df.Histo1D(("Z_chi_nmone", "", *bins_m_Z), "Z_chi"))
-    #df = df.Filter("chi < W_chi && chi < Z_chi")
+    df = df.Filter("chi < 8")
     df = df.Filter("W_chi > 10")
     df = df.Filter("Z_chi > 10")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7", "nominal_weight"))
@@ -1063,17 +1064,20 @@ def build_graph(df, dataset):
     df = df.Define("G_cut0", "Best_Jets_PDG1 == 21 ? 0 : 999")
     results.append(df.Histo1D(("G_cutflow", "", *bins_count), "G_cut0"))
 
-    # ####################
-    # ### Cut 6: Jet Score (Flavor Specific)
-    # ####################
+
+    df = df.Define("BScoreSum", "Best_Jets1_ScoreB + Best_Jets2_ScoreB")
+    results.append(df.Histo1D(("BScoreSum_nmone", "", *bins_jet_scoreSum), "BScoreSum"))
+
+    ####################
+    ### Cut 6: Jet Score (Flavor Specific)
+    ####################
     # if jet_flavor == "qq": 
     #     df = df.Filter("Best_Jets1_ScoreQ > 0.01")
     #     df = df.Filter("Best_Jets2_ScoreQ > 0.01")
     #         #df = df.Filter("jet{}_scoreQ > 0.1".format(x))
-    # if jet_flavor == "bb":
-    #     df = df.Filter("Best_Jets1_ScoreB > 0.4")
-    #     df = df.Filter("Best_Jets2_ScoreB > 0.4")
-    # results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7", "nominal_weight"))
+    if jet_flavor == "bb":
+        df = df.Filter("(BScoreSum) >= 1.6")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8", "nominal_weight"))
 
     #Number of each type of jet after score cut:
     df = df.Define("Q_cut1", "Best_Jets_PDG1 == 1 ? 1 : 999")
@@ -1261,7 +1265,7 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("Best_Jets_TruthZ", "", *bins_binary), "BestJetsTruthZ"))
     #results.append(df.Histo1D(("HiggsIdx", "", *bins_count), "HiggsIdx[0]"))
 
-    df = df.Filter("BestJetsTruthZ = 1.0")
+    df = df.Filter("BestJetsTruthZ[0] == 1.0")
 
     results.append(df.Histo1D(("Z_massTrueJets", "", *bins_m_Z), "Z_mass"))
     results.append(df.Histo1D(("Z_Mass_MCTrueJets", "", *bins_m_Z), "Z_Mass_MC"))
