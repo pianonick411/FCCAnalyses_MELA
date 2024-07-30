@@ -17,20 +17,20 @@ def print_process_id():
 # list of processes
 processList = {
     # main backgrounds
- #  'p8_ee_WW_ecm240': {'fraction':1},
- #  'p8_ee_ZZ_ecm240': {'fraction':0.001},
- #  'wzp6_ee_tautau_ecm240': {'fraction':1},
- #  'wzp6_ee_mumu_ecm240' if flavor=="mumu" else 'wzp6_ee_ee_Mee_30_150_ecm240': {'fraction':1},
+  'p8_ee_WW_ecm240': {'fraction':1},
+#   'p8_ee_ZZ_ecm240': {'fraction':1},
+#   'wzp6_ee_tautau_ecm240': {'fraction':1},
+#   'wzp6_ee_mumu_ecm240' if flavor=="mumu" else 'wzp6_ee_ee_Mee_30_150_ecm240': {'fraction':1},
 
-    #rare backgrounds
- #   f'wzp6_egamma_eZ_Z{flavor}_ecm240': {'fraction':1},
- #   f'wzp6_gammae_eZ_Z{flavor}_ecm240': {'fraction':1},
- #   f'wzp6_gaga_{flavor}_60_ecm240': {'fraction':1},
-  #  'wzp6_gaga_tautau_60_ecm240': {'fraction':1},
-  #  'wzp6_ee_nuenueZ_ecm240': {'fraction':1},
+#    # rare backgrounds
+#    f'wzp6_egamma_eZ_Z{flavor}_ecm240': {'fraction':1},
+#    f'wzp6_gammae_eZ_Z{flavor}_ecm240': {'fraction':1},
+#    f'wzp6_gaga_{flavor}_60_ecm240': {'fraction':1},
+#    'wzp6_gaga_tautau_60_ecm240': {'fraction':1},
+#    'wzp6_ee_nuenueZ_ecm240': {'fraction':1},
     
-    # signal
-   f'wzp6_ee_{flavor}H_ecm240': {'fraction':0.01},
+   # signal
+  f'wzp6_ee_{flavor}H_ecm240': {'fraction':1},
 }
 
 #if do_mass:
@@ -57,7 +57,7 @@ includePaths = ["functions.h", "JHUfunctions.h"]
 
 
 #Optional: output directory, default is local running directory
-outputDir   = "/eos/user/n/nipinto/FCCAnalyses_MELA/analysis/FCCAnalysisOut/SignalComparison"
+outputDir   = "/eos/user/n/nipinto/FCCAnalyses_MELA/analysis/FCCAnalysisOut/SampleMuMu"
 
 #f"output_{flavor}/"
 

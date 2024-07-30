@@ -1,9 +1,9 @@
 
 # analysis config
 do_gen = False # replace reco-particles by the corresponding gen particle
-do_weights = True
-
-jet_flavor = "bb"
+do_weights = False
+runBatch = True
+jet_flavor = ""
 
 
 import os, copy 
@@ -21,19 +21,19 @@ def print_process_id():
 # list of processes
 processList = {
     # main backgrounds
- 'p8_ee_WW_ecm240': {'fraction':1},
-'p8_ee_ZZ_ecm240': {'fraction':1},
+ #'p8_ee_WW_ecm240': {'fraction':0.0001},
+#'p8_ee_ZZ_ecm240': {'fraction':0.001},
     #'wzp6_ee_tautau_ecm240': {'fraction':1},
     #'wzp6_ee_mumu_ecm240' if flavor=="mumu" else 'wzp6_ee_ee_Mee_30_150_ecm240': {'fraction':1},
-    'wzp6_ee_nunuH_ecm240': {'fraction':1},
-    "p8_ee_Zqq_ecm240": {'fraction':1},
+    #'wzp6_ee_nunuH_ecm240': {'fraction':.01},
+#    "p8_ee_Zqq_ecm240": {'fraction':.0001},
 
     # rare backgrounds
     #f'wzp6_egamma_eZ_Z{flavor}_ecm240': {'fraction':1},
     #f'wzp6_gammae_eZ_Z{flavor}_ecm240': {'fraction':1},
     #f'wzp6_gaga_{flavor}_60_ecm240': {'fraction':1},
     #'wzp6_gaga_tautau_60_ecm240': {'fraction':1},
-    'wzp6_ee_nuenueZ_ecm240': {'fraction':1},
+    #'wzp6_ee_nuenueZ_ecm240': {'fraction':.01},
 
     #Backgrounds for Z --> bb\
 
@@ -41,35 +41,35 @@ processList = {
     # signals
     #'wzp6_ee_nunuH_Hbb_ecm240': {'fraction':0.01},
     
-    # f'wzp6_ee_qqH_ecm240': {'fraction':0.01},
+f'wzp6_ee_qqH_ecm240': {'fraction':0.01},
 
 
 
-f'wzp6_ee_bbH_Hbb_ecm240': {'fraction':1},
-  f'wzp6_ee_bbH_Hcc_ecm240': {'fraction':1},
-     f'wzp6_ee_bbH_Hss_ecm240': {'fraction':1},
-     f'wzp6_ee_bbH_Hgg_ecm240': {'fraction':1},
-     'wzp6_ee_bbH_Htautau_ecm240':{'fraction':1},
-  'wzp6_ee_bbH_HZZ_ecm240':{'fraction':1},
-  'wzp6_ee_bbH_HWW_ecm240':{'fraction':1},
+f'wzp6_ee_bbH_Hbb_ecm240': {'fraction':0.01},
+f'wzp6_ee_bbH_Hcc_ecm240': {'fraction':0.01},
+ f'wzp6_ee_bbH_Hss_ecm240': {'fraction':0.01},
+     f'wzp6_ee_bbH_Hgg_ecm240': {'fraction':0.01},
+     'wzp6_ee_bbH_Htautau_ecm240':{'fraction':0.01},
+  'wzp6_ee_bbH_HZZ_ecm240':{'fraction':0.01},
+  'wzp6_ee_bbH_HWW_ecm240':{'fraction':0.01},
 
 
 
-#     f'wzp6_ee_ccH_Hbb_ecm240': {'fraction':0.01},
-#     f'wzp6_ee_ccH_Hcc_ecm240': {'fraction':0.01},
-#     f'wzp6_ee_ccH_Hss_ecm240': {'fraction':1},
-#     f'wzp6_ee_ccH_Hgg_ecm240': {'fraction':1},
-#    'wzp6_ee_ccH_Htautau_ecm240':{'fraction':0.01},
-#    'wzp6_ee_ccH_HZZ_ecm240':{'fraction':0.01},
-#    'wzp6_ee_ccH_HWW_ecm240':{'fraction':0.01},
+   f'wzp6_ee_ccH_Hbb_ecm240': {'fraction':0.01},
+    f'wzp6_ee_ccH_Hcc_ecm240': {'fraction':0.01},
+    f'wzp6_ee_ccH_Hss_ecm240': {'fraction':1},
+    f'wzp6_ee_ccH_Hgg_ecm240': {'fraction':1},
+   'wzp6_ee_ccH_Htautau_ecm240':{'fraction':0.01},
+   'wzp6_ee_ccH_HZZ_ecm240':{'fraction':0.01},
+   'wzp6_ee_ccH_HWW_ecm240':{'fraction':0.01},
 
-#     f'wzp6_ee_ssH_Hbb_ecm240': {'fraction':1},
-#     f'wzp6_ee_ssH_Hcc_ecm240': {'fraction':1},
-#     f'wzp6_ee_ssH_Hss_ecm240': {'fraction':1},
-#     f'wzp6_ee_ssH_Hgg_ecm240': {'fraction':1},
-#     'wzp6_ee_ssH_Htautau_ecm240':{'fraction':0.01},
-#    'wzp6_ee_ssH_HZZ_ecm240':{'fraction':0.01},
-#    'wzp6_ee_ssH_HWW_ecm240':{'fraction':0.01},
+    f'wzp6_ee_ssH_Hbb_ecm240': {'fraction':1},
+    f'wzp6_ee_ssH_Hcc_ecm240': {'fraction':1},
+    f'wzp6_ee_ssH_Hss_ecm240': {'fraction':1},
+    f'wzp6_ee_ssH_Hgg_ecm240': {'fraction':1},
+    'wzp6_ee_ssH_Htautau_ecm240':{'fraction':0.01},
+   'wzp6_ee_ssH_HZZ_ecm240':{'fraction':0.01},
+   'wzp6_ee_ssH_HWW_ecm240':{'fraction':0.01},
 
 }
 
@@ -88,7 +88,7 @@ includePaths = ["functions.h", "JHUfunctions.h"]
 
 
 #Optional: output directory, default is local running directory
-outputDir   = "FCCAnalysisOut/July25Set1/"
+outputDir   = "FCCAnalysisOut/July30Set1/"
 
 #f"output_{flavor}/"
 
@@ -1040,7 +1040,7 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("chi_nmone", "", *bins_m_Z), "chi"))
     results.append(df.Histo1D(("W_chi_nmone", "", *bins_m_Z), "W_chi"))
     results.append(df.Histo1D(("Z_chi_nmone", "", *bins_m_Z), "Z_chi"))
-    df = df.Filter("chi < 8")
+    df = df.Filter("chi < 10")
     df = df.Filter("W_chi > 10")
     df = df.Filter("Z_chi > 10")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7", "nominal_weight"))
@@ -1068,8 +1068,11 @@ def build_graph(df, dataset):
     df = df.Define("BScoreSum", "Best_Jets1_ScoreB + Best_Jets2_ScoreB")
     results.append(df.Histo1D(("BScoreSum_nmone", "", *bins_jet_scoreSum), "BScoreSum"))
 
+    df = df.Define("CScoreSum", "Best_Jets1_ScoreC + Best_Jets2_ScoreC")
+    results.append(df.Histo1D(("CScoreSum_nmone", "", *bins_jet_scoreSum), "CScoreSum"))
+
     ####################
-    ### Cut 6: Jet Score (Flavor Specific)
+    ### Cut 8: Jet Score (Flavor Specific)
     ####################
     # if jet_flavor == "qq": 
     #     df = df.Filter("Best_Jets1_ScoreQ > 0.01")
@@ -1077,7 +1080,15 @@ def build_graph(df, dataset):
     #         #df = df.Filter("jet{}_scoreQ > 0.1".format(x))
     if jet_flavor == "bb":
         df = df.Filter("(BScoreSum) >= 1.6")
+    
+    if jet_flavor == "cc": 
+        df = df.Filter("CScoreSum >= 1.0")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8", "nominal_weight"))
+   
+
+   ## Another approach: setting a mask on BScore and seeing what happens 
+   
+
 
     #Number of each type of jet after score cut:
     df = df.Define("Q_cut1", "Best_Jets_PDG1 == 1 ? 1 : 999")
@@ -1121,6 +1132,21 @@ def build_graph(df, dataset):
 
 
     df = df.Define("cos_2_corrected", "cos_2 == 0 ? 999 : cos_2")
+
+     ################
+    ### Cut 9: Cos_2
+    ################
+    df = df.Filter(" cos_2 > -0.99 && cos_2 < 0.99")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut9", "nominal_weight"))
+
+
+    #################
+    ### Cut 10: dij cuts 
+    ##################
+    df = df.Filter("15000 < d_12 < 58000")
+    df = df.Filter("400 < d_23 < 18000")
+    df = df.Filter("100 < d_34 < 6000")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut10", "nominal_weight"))
     
     
 
@@ -1272,6 +1298,7 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("Z_ptTrueJets", "", *bins_p_ll), "Z_pt"))
     results.append(df.Histo1D(("Z_pt_MCTrueJets", "", *bins_p_ll), "Z_pt_MC"))
     results.append(df.Histo1D(("Z_pTrueJets", "", *bins_p_ll), "Z_p"))
+    results.append(df.Histo1D(("CScoreSumTruth", "", *bins_jet_scoreSum), "CScoreSum"))
 
     results.append(df.Histo1D(("recoil_massTrueJets", "", *bins_m_Z), "recoil_mass"))
     results.append(df.Histo1D(("recoil_mass_correctedTrueJets", "", *bins_m_Z), "recoil_mass_corrected"))
