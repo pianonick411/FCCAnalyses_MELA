@@ -35,14 +35,14 @@ processList = {
     f'wzp6_ee_{flavor}H_ecm240': {'fraction':1},
 }
 
-if do_mass:
-    processList[f'wzp6_ee_{flavor}H_mH-higher-100MeV_ecm240'] = {'fraction':1}
-    processList[f'wzp6_ee_{flavor}H_mH-higher-50MeV_ecm240'] = {'fraction':1}
-    processList[f'wzp6_ee_{flavor}H_mH-lower-100MeV_ecm240'] = {'fraction':1}
-    processList[f'wzp6_ee_{flavor}H_mH-lower-50MeV_ecm240'] = {'fraction':1}
-    if do_syst:
-        processList[f'wzp6_ee_{flavor}H_BES-higher-1pc_ecm240'] = {'fraction':1}
-        processList[f'wzp6_ee_{flavor}H_BES-lower-1pc_ecm240'] = {'fraction':1}
+# if do_mass:
+#     processList[f'wzp6_ee_{flavor}H_mH-higher-100MeV_ecm240'] = {'fraction':1}
+#     processList[f'wzp6_ee_{flavor}H_mH-higher-50MeV_ecm240'] = {'fraction':1}
+#     processList[f'wzp6_ee_{flavor}H_mH-lower-100MeV_ecm240'] = {'fraction':1}
+#     processList[f'wzp6_ee_{flavor}H_mH-lower-50MeV_ecm240'] = {'fraction':1}
+#     if do_syst:
+#         processList[f'wzp6_ee_{flavor}H_BES-higher-1pc_ecm240'] = {'fraction':1}
+#         processList[f'wzp6_ee_{flavor}H_BES-lower-1pc_ecm240'] = {'fraction':1}
 
 sigProcs = ["wzp6_ee_mumuH_ecm240", "wzp6_ee_eeH_ecm240"]
 

@@ -997,11 +997,11 @@ float Weights(std::array<int, 1>  HiggsID, Vec_tlv higgsTlv, std::array<int, 2> 
     m.setInputEvent(leptons, jets, 0, 1); 
     if(AssociatedParticleID[0] == 11 || AssociatedParticleID[0] == 13){
         m.setProcess(TVar::SelfDefine_spin0, TVar::JHUGen, TVar::Lep_ZH); 
-       // cout << "Currently hitting Lep_ZH" << endl; 
+    //    cout << "Currently hitting Lep_ZH" << endl; 
     }
     else {
         m.setProcess(TVar::SelfDefine_spin0, TVar::JHUGen, TVar::Had_ZH); 
-       // cout << "Currently hitting Had_ZH" << endl;
+    //    cout << "Currently hitting Had_ZH" << endl;
     }
   //  cout << "This is the value of the ghz1 coupling in the General function: " << m.selfDHzzcoupl[0][0][0] << endl;
   //   cout << "This is the value of the ghz4 coupling in the General function: " << m.selfDHzzcoupl[0][3][0] << endl;  
@@ -1039,11 +1039,11 @@ float Weights(std::array<int, 1>  HiggsID, TLorentzVector higgsTlv, std::array<i
     m.setInputEvent(leptons, jets, 0, 1); 
     if(fabs(AssociatedParticleID[0]) == 11 || fabs(AssociatedParticleID[0]) == 13){
         m.setProcess(TVar::SelfDefine_spin0, TVar::JHUGen, TVar::Lep_ZH); 
-       // cout << "Currently hitting Lep_ZH" << endl; 
+    //    cout << "Currently hitting Lep_ZH" << endl; 
     }
     else {
         m.setProcess(TVar::SelfDefine_spin0, TVar::JHUGen, TVar::Had_ZH); 
-       // cout << "Currently hitting Had_ZH" << endl;
+    //    cout << "Currently hitting Had_ZH" << endl;
     }
   //  cout << "This is the value of the ghz1 coupling in the General function: " << m.selfDHzzcoupl[0][0][0] << endl;
   //   cout << "This is the value of the ghz4 coupling in the General function: " << m.selfDHzzcoupl[0][3][0] << endl;  

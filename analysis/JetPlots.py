@@ -10,10 +10,10 @@ delphesVersion  = '3.4.2'
 energy          = 240.0
 collider        = 'FCC-ee'
 #inputDir        = f'output_{flavor}/'
-inputDir        = '/eos/user/n/nipinto/FCCAnalyses_MELA/analysis/FCCAnalysisOut/ZbbSamples4'
+inputDir        = '/eos/user/n/nipinto/FCCAnalyses_MELA/analysis/FCCAnalysisOut/HadronicAnalysis'
 formats         = ['pdf', 'png']
 #outdir          = f'plots_{flavor}/'
-outdir          = 'jetPlots/ZbbPlots4'
+outdir          = 'jetPlots/HadronicPlots'
 plotStatUnc     = False
 
 colors = {}
@@ -26,14 +26,7 @@ colors['rare']  = ROOT.TColor.GetColor(155, 152, 204)
 
 
 procs = {}
-procs['signal'] =   {'ZH_0+':[f'wzp6_ee_bbH_Hbb_ecm240',
-   f'wzp6_ee_bbH_Hcc_ecm240',
-     f'wzp6_ee_bbH_Hss_ecm240',
-     f'wzp6_ee_bbH_Hgg_ecm240',
-     'wzp6_ee_bbH_Htautau_ecm240',
-  'wzp6_ee_bbH_HZZ_ecm240',
-  'wzp6_ee_bbH_HWW_ecm240',
-]}
+procs['signal'] =   {'ZH_0+':[f'HadronicAnalysis']}
 procs['backgrounds'] = {}
 procs['backgrounds']['WW'] = ['p8_ee_WW_ecm240']
 procs['backgrounds']['ZZ'] = ['p8_ee_ZZ_ecm240']
@@ -57,33 +50,33 @@ hists = {}
 hists["Z_mass"] = {
     "output":   "Z_mass",
     "logy":     False,
-    "stack":    False,
+    "stack":    True,
     "rebin":    20,
-    "xmin":     60,
+    "xmin":     80,
     "xmax":     100,
     "xtitle":   f"m(Dijet) (GeV)",
     "ytitle":   "Events ",
     "scaleSig": 1
 }
 
-hists["Z_mass_nmone"] = {
-    "output":   "Z_mass_nmone",
-    "logy":     False,
-    "stack":    False,
-    "rebin":    20,
-    "xmin":     0,
-    "xmax":     120,
-    "xtitle":   f"m(Dijet) (GeV)",
-    "ytitle":   "Events ",
-    "scaleSig": 100
-}
+# hists["Z_mass_nmone"] = {
+#     "output":   "Z_mass_nmone",
+#     "logy":     False,
+#     "stack":    False,
+#     "rebin":    20,
+#     "xmin":     0,
+#     "xmax":     120,
+#     "xtitle":   f"m(Dijet) (GeV)",
+#     "ytitle":   "Events ",
+#     "scaleSig": 100
+# }
 
 hists["Z_p"] = {
     "output":   "Z_p",
     "logy":     False,
-    "stack":    False,
+    "stack":    True,
     "rebin":    2,
-    "xmin":     20,
+    "xmin":     35,
     "xmax":     60,
     "xtitle":   f"p(Dijet) (GeV)",
     "ytitle":   "Events ",
@@ -102,128 +95,128 @@ hists["Z_p_nmone"] = {
     "scaleSig": 100
 }
 
-hists["d_12_nmone"] = {
-    "output":   "d_12_nmone",
-    "logy":     False,
-    "stack":    False,
-    "rebin":    2000,
-    "xmin":     0,
-    "xmax":     100000,
-    "xtitle":   f"",
-    "ytitle":   "Events ",
-    "scaleSig": 100
-}
+# hists["d_12_nmone"] = {
+#     "output":   "d_12_nmone",
+#     "logy":     False,
+#     "stack":    False,
+#     "rebin":    2000,
+#     "xmin":     0,
+#     "xmax":     100000,
+#     "xtitle":   f"",
+#     "ytitle":   "Events ",
+#     "scaleSig": 100
+# }
 
-hists["d_23_nmone"] = {
-    "output":   "d_23_nmone",
-    "logy":     False,
-    "stack":    False,
-    "rebin":    200,
-    "xmin":     0,
-    "xmax":     30000,
-    "xtitle":   f"",
-    "ytitle":   "Events ",
-    "scaleSig": 100
-}
+# hists["d_23_nmone"] = {
+#     "output":   "d_23_nmone",
+#     "logy":     False,
+#     "stack":    False,
+#     "rebin":    200,
+#     "xmin":     0,
+#     "xmax":     30000,
+#     "xtitle":   f"",
+#     "ytitle":   "Events ",
+#     "scaleSig": 100
+# }
 
-hists["d_34_nmone"] = {
-    "output":   "d_34_nmone",
-    "logy":     False,
-    "stack":    False,
-    "rebin":    20,
-    "xmin":     0,
-    "xmax":     20000,
-    "xtitle":   f"",
-    "ytitle":   "Events ",
-    "scaleSig": 100
-}
+# hists["d_34_nmone"] = {
+#     "output":   "d_34_nmone",
+#     "logy":     False,
+#     "stack":    False,
+#     "rebin":    20,
+#     "xmin":     0,
+#     "xmax":     20000,
+#     "xtitle":   f"",
+#     "ytitle":   "Events ",
+#     "scaleSig": 100
+# }
 
-hists["d_56_nmone"] = {
-    "output":   "d_56_nmone",
-    "logy":     False,
-    "stack":    False,
-    "rebin":    20,
-    "xmin":     0,
-    "xmax":     1000,
-    "xtitle":   f"",
-    "ytitle":   "Events ",
-    "scaleSig": 100
-}
+# hists["d_56_nmone"] = {
+#     "output":   "d_56_nmone",
+#     "logy":     False,
+#     "stack":    False,
+#     "rebin":    20,
+#     "xmin":     0,
+#     "xmax":     1000,
+#     "xtitle":   f"",
+#     "ytitle":   "Events ",
+#     "scaleSig": 100
+# }
 
-hists["d_78_nmone"] = {
-    "output":   "d_78_nmone",
-    "logy":     False,
-    "stack":    False,
-    "rebin":    20,
-    "xmin":     0,
-    "xmax":     200,
-    "xtitle":   f"",
-    "ytitle":   "Events ",
-    "scaleSig": 1
-}
+# hists["d_78_nmone"] = {
+#     "output":   "d_78_nmone",
+#     "logy":     False,
+#     "stack":    False,
+#     "rebin":    20,
+#     "xmin":     0,
+#     "xmax":     200,
+#     "xtitle":   f"",
+#     "ytitle":   "Events ",
+#     "scaleSig": 1
+# }
 
-hists["d_89_nmone"] = {
-    "output":   "d_89_nmone",
-    "logy":     False,
-    "stack":    False,
-    "rebin":    20,
-    "xmin":     0,
-    "xmax":     20,
-    "xtitle":   f"",
-    "ytitle":   "Events ",
-    "scaleSig": 100
-}
-
-
+# hists["d_89_nmone"] = {
+#     "output":   "d_89_nmone",
+#     "logy":     False,
+#     "stack":    False,
+#     "rebin":    20,
+#     "xmin":     0,
+#     "xmax":     20,
+#     "xtitle":   f"",
+#     "ytitle":   "Events ",
+#     "scaleSig": 100
+# }
 
 
 
 
 
 
-hists["W_chi"] = {
-    "output":   "W_chi",
-    "logy":     False,
-    "stack":    False,
-    "rebin":    20,
-    "xmin":     0,
-    "xmax":     100,
-    "xtitle":   f"W_chi",
-    "ytitle":   "Events ",
-    "scaleSig": 1
-}
 
-hists["Z_chi"] = {
-    "output":   "Z_chi",
-    "logy":     False,
-    "stack":    False,
-    "rebin":    20,
-    "xmin":     0,
-    "xmax":     100,
-    "xtitle":   f"Z_chi",
-    "ytitle":   "Events ",
-    "scaleSig": 1
-}
 
-hists["chi"] = {
-    "output":   "chi",
-    "logy":     False,
-    "stack":    False,
-    "rebin":    20,
-    "xmin":     0,
-    "xmax":     100,
-    "xtitle":   f"chi",
-    "ytitle":   "Events ",
-    "scaleSig": 1
-}
+# hists["W_chi"] = {
+#     "output":   "W_chi",
+#     "logy":     False,
+#     "stack":    False,
+#     "rebin":    20,
+#     "xmin":     0,
+#     "xmax":     100,
+#     "xtitle":   f"W_chi",
+#     "ytitle":   "Events ",
+#     "scaleSig": 1
+# }
+
+# hists["Z_chi"] = {
+#     "output":   "Z_chi",
+#     "logy":     False,
+#     "stack":    False,
+#     "rebin":    20,
+#     "xmin":     0,
+#     "xmax":     100,
+#     "xtitle":   f"Z_chi",
+#     "ytitle":   "Events ",
+#     "scaleSig": 1
+# }
+
+# hists["chi"] = {
+#     "output":   "chi",
+#     "logy":     False,
+#     "stack":    False,
+#     "rebin":    20,
+#     "xmin":     0,
+#     "xmax":     100,
+#     "xtitle":   f"chi",
+#     "ytitle":   "Events ",
+#     "scaleSig": 1
+# }
 
 hists["recoil_mass"] = {
     "output":   "recoil_mass",
     "logy":     False,
-    "stack":    False,
+    "stack":    True,
     "rebin":    20,
-    "xmin":     80,
-    "xmax":     160,
+    "xmin":     110,
+    "xmax":     150,
     "xtitle":   f"m(Rec) (GeV)",
     "ytitle":   "Events ",
     "scaleSig": 1
@@ -232,7 +225,7 @@ hists["recoil_mass"] = {
 hists["recoil_mass_nmone"] = {
     "output":   "recoil_mass_nmone",
     "logy":     False,
-    "stack":    False,
+    "stack":    True,
     "rebin":    20,
     "xmin":     0,
     "xmax":     160,
@@ -244,10 +237,10 @@ hists["recoil_mass_nmone"] = {
 hists["recoil_mass_corrected"] = {
     "output":   "recoil_mass_corrected",
     "logy":     False,
-    "stack":    False,
+    "stack":    True,
     "rebin":    20,
-    "xmin":     80,
-    "xmax":     160,
+    "xmin":     110,
+    "xmax":     140,
     "xtitle":   f"m(Rec) (GeV)",
     "ytitle":   "Events ",
     "scaleSig": 1
@@ -256,7 +249,7 @@ hists["recoil_mass_corrected"] = {
 hists["cos_1"] = {
     "output":   "cos_1",
     "logy":     False,
-    "stack":    False,
+    "stack":    True,
    # "rebin":    20,
     "xmin":     -1,
     "xmax":     1,
@@ -268,7 +261,7 @@ hists["cos_1"] = {
 hists["cos_2_corrected"] = {
     "output":   "cos_2_corrected",
     "logy":     False,
-    "stack":    False,
+    "stack":    True,
     #"rebin":    20,
     "xmin":     -1,
     "xmax":     1,
@@ -280,7 +273,7 @@ hists["cos_2_corrected"] = {
 hists["phi"] = {
     "output":   "phi",
     "logy":     False,
-    "stack":    False,
+    "stack":    True,
    # "rebin":    20,
     "xmin":     -3.1415,
     "xmax":     3.1415,
@@ -306,7 +299,7 @@ hists["cutFlow"] = {
     "logy":     True,
     "stack":    False,
     "xmin":     0,
-    "xmax":     12,
+    "xmax":     10,
     "ymin":     1e3,
     "ymax":     1e11,
     #"xtitle":   ["All events", f"e <= 2", f"p(e) < 20 GeV", f"mu <= 2", f"p(mu) < 20 GeV", "vis_M, vis_E > 150 GeV, 0.15 < vis_theta < 3.0", "110 < mRec < 145", "60 < m(Z) < 100", "20 < p(Z) < 60", "W_chi & Z_chi > 10"],

@@ -1,14 +1,16 @@
 # analysis config
 import ROOT 
-flavor = "mumu" # mumu or ee
+flavor = "ee" # mumu or ee
 do_mass = True # for mass analysis, extra cut on cos(theta_miss)
 do_gen = False # replace reco-particles by the corresponding gen particle
 do_syst = False
-do_weights = False
+do_weights = True
 
 
 import os 
 import threading 
+
+from array import array
 
 def print_process_id(): 
     print(threading.current_thread, os.getpid())
@@ -17,20 +19,20 @@ def print_process_id():
 # list of processes
 processList = {
     # main backgrounds
-  'p8_ee_WW_ecm240': {'fraction':1},
-#   'p8_ee_ZZ_ecm240': {'fraction':1},
-#   'wzp6_ee_tautau_ecm240': {'fraction':1},
-#   'wzp6_ee_mumu_ecm240' if flavor=="mumu" else 'wzp6_ee_ee_Mee_30_150_ecm240': {'fraction':1},
+#   'p8_ee_WW_ecm240': {'fraction':0.5},
+  'p8_ee_ZZ_ecm240': {'fraction':1},
+  'wzp6_ee_tautau_ecm240': {'fraction':1},
+  'wzp6_ee_mumu_ecm240' if flavor=="mumu" else 'wzp6_ee_ee_Mee_30_150_ecm240': {'fraction':1},
 
-#    # rare backgrounds
-#    f'wzp6_egamma_eZ_Z{flavor}_ecm240': {'fraction':1},
-#    f'wzp6_gammae_eZ_Z{flavor}_ecm240': {'fraction':1},
-#    f'wzp6_gaga_{flavor}_60_ecm240': {'fraction':1},
-#    'wzp6_gaga_tautau_60_ecm240': {'fraction':1},
-#    'wzp6_ee_nuenueZ_ecm240': {'fraction':1},
+   # rare backgrounds
+   f'wzp6_egamma_eZ_Z{flavor}_ecm240': {'fraction':1},
+   f'wzp6_gammae_eZ_Z{flavor}_ecm240': {'fraction':1},
+   f'wzp6_gaga_{flavor}_60_ecm240': {'fraction':1},
+   'wzp6_gaga_tautau_60_ecm240': {'fraction':1},
+   'wzp6_ee_nuenueZ_ecm240': {'fraction':1},
     
    # signal
-  f'wzp6_ee_{flavor}H_ecm240': {'fraction':1},
+#  f'wzp6_ee_{flavor}H_ecm240': {'fraction':1},
 }
 
 #if do_mass:
@@ -42,7 +44,7 @@ processList = {
 #        processList[f'wzp6_ee_{flavor}H_BES-higher-1pc_ecm240'] = {'fraction':1}
 #        processList[f'wzp6_ee_{flavor}H_BES-lower-1pc_ecm240'] = {'fraction':1}
 
-sigProcs = ["wzp6_ee_mumuH_ecm240", "wzp6_ee_eeH_ecm240"]
+sigProcs = ["wzp6_ee_mumuH_ecm240", "wzp6_ee_eeH_ecm240", "wzp6_ee_tautauH_ecm240"]
 bkgProcs = ["p8_ee_WW_ecm240", "p8_ee_ZZ_ecm240", "wzp6_ee_tautau_ecm240", ""]
 
 
@@ -57,13 +59,13 @@ includePaths = ["functions.h", "JHUfunctions.h"]
 
 
 #Optional: output directory, default is local running directory
-outputDir   = "/eos/user/n/nipinto/FCCAnalyses_MELA/analysis/FCCAnalysisOut/SampleMuMu"
+outputDir   = "/eos/user/n/nipinto/FCCAnalyses_MELA/analysis/FCCAnalysisOut/leptonicDiscriminants/test/eebkg"
 
 #f"output_{flavor}/"
 
 
 # optional: ncpus, default is 4, -1 uses all cores available
-nCPUS       = -1
+nCPUS       = 1
 
 # scale the histograms with the cross-section and integrated luminosity
 doScale = True
@@ -98,7 +100,21 @@ bins_phiRW = (20, 0, 20)
 bins_weight = (100, -2, 2)
 bins_weird = (1000, -500, 500)
 
+bins_cos_Template = (10, -1.0, 1.0)
+bins_phi_Template = (10, -3.15, 3.15)
 
+if flavor == "mumu":
+    bins_D_CP_template = array('d',[-1, -0.65726399, -0.19060656,  0. , 0.19060656,  0.657263991, 1])
+    bins_D0_template = array('d',[0, 0.29951653, 0.43256772, 0.51660007, 0.69166744, 0.99978596, 1])
+    bins_MRec_template = array('d', [124, 124.6, 124.94141414, 125.62424242, 126.2020202,  127.2, 127.3])
+
+    # bins_D_CP_template = (4, -1, 1)
+    # bins_D0_template = (4, 0, 1)
+    # bins_MRec_template = (4, 124, 127)
+elif flavor == "ee": 
+    bins_D_CP_template = array('d',[-1, -0.65726399, -0.19060656,  0. , 0.19060656,  0.657263991, 1])
+    bins_D0_template = array('d',[0, 0.29951653, 0.43256772, 0.51660007, 0.69166744, 0.99978596, 1])
+    bins_MRec_template = array('d', [124, 124.6, 124.94141414, 125.62424242, 126.2020202,  127.2, 127.3])
 
 
 # build_graph function that contains the analysis logic, cuts and histograms (mandatory)
@@ -117,10 +133,13 @@ def build_graph(df, dataset):
     df = df.Alias("Photon0", "Photon#0.index")
     if flavor == "mumu":
         df = df.Alias("Lepton0", "Muon#0.index")
-    else:
+    elif flavor == "ee":
         df = df.Alias("Lepton0", "Electron#0.index")
+    else:
+        df = df.Alias("Lepton0", "Tau#0.index")
     
-    df = df.Define("LHEAssociatedParticleId", "FCCAnalyses::JHUfunctions::SetAssocId(13, -13)")
+    # Have to change this for electrons and muons
+    df = df.Define("LHEAssociatedParticleId", "FCCAnalyses::JHUfunctions::SetAssocId(11, -11)")
     
     
     df = df.Define("LHEDaughterId", "FCCAnalyses::JHUfunctions::SetHiggsId()")
@@ -142,6 +161,8 @@ def build_graph(df, dataset):
     df = df.Define("MixtureVec", 'FCCAnalyses::JHUfunctions::createCouplingVector({ghz1Pair, ghz4Pair})')
     df = df.Define("NegMixtureVec", 'FCCAnalyses::JHUfunctions::createCouplingVector({ghz1Pair, Negghz4Pair})')
 
+    
+
 
     if dataset in sigProcs: 
         df = df.Define("full_decays", "FCCAnalyses::MCParticle::get_indices(11, FCCAnalyses::JHUfunctions::DesiredDaughters(), false, true, false, true)(Particle, Particle1)")
@@ -152,47 +173,54 @@ def build_graph(df, dataset):
         df = df.Define("electronSimStatus", "FCCAnalyses::MCParticle::get_simStatus(electronVec_MC)")
         df = df.Define("electronTLV", "FCCAnalyses::JHUfunctions::makeLorentzVectors(electronVec_MC)")
 
+        
+
    # df = df.Define("positronMC", "FCCAnalyses::MCParticle::sel_byIndex(positron_decays[0], Particle)")
         df = df.Define("positronMC", "FCCAnalyses::MCParticle::sel_byIndex(05, Particle)")
         df = df.Define("positronVec_MC", "ROOT::VecOps::RVec<edm4hep::MCParticleData>{positronMC}")
         df = df.Define("positronGenStatus", "FCCAnalyses::MCParticle::get_genStatus(positronVec_MC)")
         df = df.Define("positronSimStatus", "FCCAnalyses::MCParticle::get_simStatus(positronVec_MC)")
         df = df.Define("positronTLV", "FCCAnalyses::JHUfunctions::makeLorentzVectors(positronVec_MC)")
+
+        df = df.Define("electronDausIdx", "FCCAnalyses::JHUfunctions::get_gen_daus(4, Particle, Particle1)")
             
-        df = df.Define("negmuMC", "FCCAnalyses::MCParticle::sel_byIndex(full_decays[1], Particle)") 
+        df = df.Define("negmuMC", "FCCAnalyses::MCParticle::sel_byIndex(electronDausIdx[1], Particle)") 
         df = df.Define("negmuVec_MC", "ROOT::VecOps::RVec<edm4hep::MCParticleData>{negmuMC}")
         df = df.Define("negmuGenStatus", "FCCAnalyses::MCParticle::get_genStatus(negmuVec_MC)")
         df = df.Define("negmuSimStatus", "FCCAnalyses::MCParticle::get_simStatus(negmuVec_MC)")
         df = df.Define("negmuTLV", "FCCAnalyses::JHUfunctions::makeLorentzVectors(negmuVec_MC)")
 
-        df = df.Define("posmuMC", "FCCAnalyses::MCParticle::sel_byIndex(full_decays[2], Particle)") 
+        df = df.Define("posmuMC", "FCCAnalyses::MCParticle::sel_byIndex(electronDausIdx[0], Particle)") 
         df = df.Define("posmuVec_MC", "ROOT::VecOps::RVec<edm4hep::MCParticleData>{posmuMC}")
         df = df.Define("posmuGenStatus", "FCCAnalyses::MCParticle::get_genStatus(posmuVec_MC)")
         df = df.Define("posmuSimStatus", "FCCAnalyses::MCParticle::get_simStatus(posmuVec_MC)")
         df = df.Define("posmuTLV", "FCCAnalyses::JHUfunctions::makeLorentzVectors(posmuVec_MC)")
 
-        df = df.Define("higgsMC", "FCCAnalyses::MCParticle::sel_byIndex(full_decays[3], Particle)")
+        df = df.Define("higgsMC", "FCCAnalyses::MCParticle::sel_byIndex(electronDausIdx[2], Particle)")
         df = df.Define("higgsVec_MC", "ROOT::VecOps::RVec<edm4hep::MCParticleData>{higgsMC}")
         df = df.Define("higgsGenStatus", "FCCAnalyses::MCParticle::get_genStatus(higgsVec_MC)")
         df = df.Define("higgsSimStatus", "FCCAnalyses::MCParticle::get_simStatus(higgsVec_MC)")
         df = df.Define("higgsMCTLV", "FCCAnalyses::JHUfunctions::makeLorentzVectors(higgsVec_MC)")
     
     if do_weights:
-        df = df.Define("SMWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgsMCTLV, LHEAssociatedParticleId, negmuTLV, posmuTLV, SMVec)')
-        df = df.Define("BSMWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgsMCTLV, LHEAssociatedParticleId, negmuTLV, posmuTLV, BSMVec)')
-        df = df.Define("BSMWeightsEqual", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgsMCTLV, LHEAssociatedParticleId, negmuTLV, posmuTLV, EqualBSMVec)')
+        if dataset in sigProcs:
+            df = df.Define("SMWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgsMCTLV, LHEAssociatedParticleId, negmuTLV, posmuTLV, SMVec)')
+            df = df.Define("BSMWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgsMCTLV, LHEAssociatedParticleId, negmuTLV, posmuTLV, BSMVec)')
+            df = df.Define("BSMWeightsEqual", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgsMCTLV, LHEAssociatedParticleId, negmuTLV, posmuTLV, EqualBSMVec)')
 
-        df = df.Define("MixtureWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgsMCTLV, LHEAssociatedParticleId, negmuTLV, posmuTLV, MixtureVec)')
-        df = df.Define("NegMixtureWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgsMCTLV, LHEAssociatedParticleId, negmuTLV, posmuTLV, NegMixtureVec)')
-    
-        df = df.Define("EqualMixtureWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgsMCTLV, LHEAssociatedParticleId, negmuTLV, posmuTLV, EqualMixtureVec)')
-        df = df.Define("NegEqualMixtureWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgsMCTLV, LHEAssociatedParticleId, negmuTLV, posmuTLV, NegEqualMixtureVec)')
+            df = df.Define("MixtureWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgsMCTLV, LHEAssociatedParticleId, negmuTLV, posmuTLV, MixtureVec)')
+            df = df.Define("NegMixtureWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgsMCTLV, LHEAssociatedParticleId, negmuTLV, posmuTLV, NegMixtureVec)')
+        
+            df = df.Define("EqualMixtureWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgsMCTLV, LHEAssociatedParticleId, negmuTLV, posmuTLV, EqualMixtureVec)')
+            df = df.Define("NegEqualMixtureWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgsMCTLV, LHEAssociatedParticleId, negmuTLV, posmuTLV, NegEqualMixtureVec)')
 
-        df = df.Define("EqualInterferenceWeights", 'EqualMixtureWeights - BSMWeightsEqual - SMWeights')
-        df = df.Define("NegEqualInterferenceWeights", 'NegEqualMixtureWeights - BSMWeightsEqual - SMWeights')
+            df = df.Define("EqualInterferenceWeights", 'EqualMixtureWeights - BSMWeightsEqual - SMWeights')
+            df = df.Define("NegEqualInterferenceWeights", 'NegEqualMixtureWeights - BSMWeightsEqual - SMWeights')
 
-        df = df.Define("InterferenceWeights", 'MixtureWeights - BSMWeights - SMWeights')
-        df = df.Define("NegInterferenceWeights", 'NegMixtureWeights - BSMWeights- SMWeights')
+            df = df.Define("InterferenceWeights", 'MixtureWeights - BSMWeights - SMWeights')
+            df = df.Define("NegInterferenceWeights", 'NegMixtureWeights - BSMWeights- SMWeights')
+
+            df = df.Redefine("BSMWeights", "8.07*BSMWeightsEqual")
    
     # define cutflow variables
     for i in range(0, 20):
@@ -318,7 +346,7 @@ def build_graph(df, dataset):
     #df = df.Define("cos_2", "FCCAnalyses::JHUfunctions::CosineTheta2(z_tlv, zStar_tlv, positron_tlv)")
     #df = df.Define("phi", "FCCAnalyses::JHUfunctions::AnglePhi(higgs_tlv, z_tlv, leps_neg_tlv, leps_pos_tlv, positron_tlv, electron_tlv)")
 
-    df = df.Define("MELA_Angles", "FCCAnalyses::JHUfunctions::MELAAngles(electron_tlv, 11, positron_tlv, -11, leps_neg_tlv, 13, leps_pos_tlv, -13)")
+    df = df.Define("MELA_Angles", "FCCAnalyses::JHUfunctions::MELAAngles(electron_tlv, 11, positron_tlv, -11, leps_neg_tlv, 11, leps_pos_tlv, -11)")
 
     df = df.Define("cos_1", "MELA_Angles[1]")
     df = df.Define("cos_2", "MELA_Angles[2]")
@@ -460,6 +488,7 @@ def build_graph(df, dataset):
 
         df = df.Define("D_0Minus_Equal", 'RecoSMWeights/ (RecoSMWeights + RecoBSMWeightsEqual)')
         df = df.Define("D_CP_Equal", 'RecoEqualInterferenceWeights/(2*sqrt(RecoSMWeights*RecoBSMWeightsEqual))')
+        
     
 
     # df = df.Define("RecoSMWeightsNORM", 'RecoSMWeights/RecoSMWeights')
@@ -476,8 +505,7 @@ def build_graph(df, dataset):
     # df = df.Define("BSMWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgsMCTLV, LHEAssociatedParticleId, negmuTLV, posmuTLV, BSMVec)')
     # df = df.Define("MixtureWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgsMCTLV, LHEAssociatedParticleId, negmuTLV, posmuTLV, MixtureVec)')
     # df = df.Define("NegMixtureWeights", 'FCCAnalyses::JHUfunctions::Weights(LHEDaughterId, higgsMCTLV, LHEAssociatedParticleId, negmuTLV, posmuTLV, NegMixtureVec)')
-    if dataset in sigProcs: 
-        if do_weights:
+        if dataset in sigProcs:
             df = df.Define("SMWeightsNORM", "SMWeights/SMWeights")
             df = df.Define("BSMWeightsNORM", 'BSMWeights/SMWeights')
             df = df.Define("BSMWeightsEqualNORM", 'BSMWeightsEqual/SMWeights')
@@ -509,59 +537,12 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("phi", "", *bins_phiNP), "phi", "nominal_weight"))
     results.append(df.Histo1D(("mVstar", "", *bins_recoil), "mVstar", "nominal_weight"))
     results.append(df.Histo1D(("mV", "", *bins_recoil), "mV", "nominal_weight"))
+    results.append(df.Histo3D(("Angles_Template_SM", "", *(bins_cos_Template + bins_cos_Template + bins_phi_Template)), "cos_1", "cos_2", "phi", "nominal_weight"))
 
 
 
-    # #Defining the phi histos scaled to nreco: 
-    # if "ZZ" in dataset: 
-    #     df = df.Define("ZZScale", "7200*ZZxs/weight")
-    #     results.append(df.Histo1D(("phi_ZZ", "", *bins_phiNP), "phi", "ZZScale"))
-    #     results.append(df.HistoND(("Combine_Input", "", 4, *(bins_cos + bins_cos + bins_phiNP + bins_weight)), "cos_1", "cos_2", "phi", "ZZScale"))
-    # if "WW" in dataset:
-    #     df = df.Define("WWScale", "7200*WWxs/weight")
-    #     results.append(df.Histo1D(("phi_WW", "", *bins_phiNP), "phi", "WWScale"))
-    #     results.append(df.HistoND(("Combine_Input", "", 4, *(bins_cos + bins_cos + bins_phiNP + bins_weight)), "cos_1", "cos_2", "phi", "WWScale"))
-    # if "mumu_" in dataset:
-    #     df = df.Define("mumuScale", "7200*mumuxs/weight")
-    #     results.append(df.Histo1D(("phi_mumu", "", *bins_phiNP), "phi", "mumuScale"))
-    #     results.append(df.HistoND(("Combine_Input", "", 4, *(bins_cos + bins_cos + bins_phiNP + bins_weight)), "cos_1", "cos_2", "phi", "mumuScale"))
-        
-    # if "tautau" in dataset:
-    #     df = df.Define("tautauScale", "7200*tautauxs/weight")
-    #     results.append(df.Histo1D(("phi_tautau", "", *bins_phiNP), "phi", "tautauScale"))
-    #     results.append(df.HistoND(("Combine_Input", "", 4, *(bins_cos + bins_cos + bins_phiNP + bins_weight)), "cos_1", "cos_2", "phi", "tautauScale"))
-        
-    # if "egamma" in dataset:
-    #     df = df.Define("egammaScale", "7200*egammaxs/weight")
-    #     results.append(df.Histo1D(("phi_egamma", "", *bins_phiNP), "phi", "egammaScale"))
-    #     results.append(df.HistoND(("Combine_Input", "", 4, *(bins_cos + bins_cos + bins_phiNP + bins_weight)), "cos_1", "cos_2", "phi", "egammaScale"))
-        
-    # if "gammae" in dataset:
-    #     df = df.Define("gammaeScale", "7200*gammaexs/weight")
-    #     results.append(df.Histo1D(("phi_gammae", "", *bins_phiNP), "phi", "gammaeScale"))
-    #     results.append(df.HistoND(("Combine_Input", "", 4, *(bins_cos + bins_cos + bins_phiNP + bins_weight)), "cos_1", "cos_2", "phi", "gammaeScale"))
-        
-    # if "gagatautau" in dataset:
-    #     df = df.Define("gagatautauScale", "7200*gagatautauxs/weight")
-    #     results.append(df.Histo1D(("phi_gagatautau", "", *bins_phiNP), "phi", "gagatautauScale"))
-    #     results.append(df.Histo3D(("3DCombine_Input", "", *(bins_cos + bins_cos + bins_phiNP + bins_weight)), "cos_1", "cos_2", "phi", "gagatautauScale"))
-    #     results.append(df.HistoND(("Combine_Input", "", 4, *(bins_cos + bins_cos + bins_phiNP + bins_weight)), "cos_1", "cos_2", "phi", "gagatautauScale"))
-        
-    # if "gagamumu" in dataset:
-    #     df = df.Define("gagamumuScale", "7200*gagamumuxs/weight")
-    #     results.append(df.Histo1D(("phi_gagamumu", "", *bins_phiNP), "phi", "gagamumuScale"))
-    #     results.append(df.HistoND(("Combine_Input", "", 4, *(bins_cos + bins_cos + bins_phiNP + bins_weight)), "cos_1", "cos_2", "phi", "gagamumuScale"))
-        
-    # if "nu" in dataset:
-    #     df = df.Define("nuEntries", "FCCAnalyses::JHUfunctions::NumOfEntries(cos_1)")
-    #     df = df.Define("nuXS", "7200*33.27*2694/2000000")
-    #     df = df.Define("nuScale", "nuXS/nuEntries")
-    #     results.append(df.Histo1D(("phi_nu", "", *bins_phiNP), "phi", "nuScale"))
-    #     df.Define("ScaledPhiNu", "ROOT")
-    #     model = ROOT.RDF.THnDModel("Combine_Input4d", "", 4, )
-    #     results.append(df.Histo3D(("Combine_Input", "", *(bins_cos + bins_cos + bins_phiRW)), "cos_1", "cos_2", "phi", "nuScale"))
-    #     results.append(df.HistoND(("Combine_Input4D", "", 4, *(bins_cos + bins_cos + bins_phiNP + bins_weight)), ["cos_1", "cos_2", "phi", "nuScale"]))
-        
+
+
     
     
     
@@ -588,7 +569,7 @@ def build_graph(df, dataset):
     results.append(df.Histo2D(("zll_recoil_m_cat", "", *(bins_recoil_fine + bins_cat)), "zll_recoil_m", "zll_category", "nominal_weight"))
 
 
-    
+    # h3 = df.Histo3D(("h3", "3D Histogram", len(x_bins)-1, array('d', x_bins), len(y_bins)-1, array('d', y_bins), len(z_bins)-1, array('d', z_bins)), "x_column", "y_column", "z_column")
 
 
     #if dataset in sigProcs:
@@ -599,6 +580,21 @@ def build_graph(df, dataset):
         results.append(df.Histo1D(("RecoMixtureWeights", "", *bins_weight), "RecoMixtureWeights", "nominal_weight"))
         results.append(df.Histo1D(("RecoNegMixtureWeights", "", *bins_weight), "RecoNegMixtureWeights", "nominal_weight"))
         results.append(df.Histo1D(("RecoInterferenceWeights", "", *bins_weight), "RecoInterferenceWeights", "nominal_weight"))
+            
+        
+        results.append(df.Histo3D(("ggH_SM_250", "", len(bins_D0_template) -1, bins_D0_template, len(bins_D_CP_template) -1, bins_D_CP_template, len(bins_MRec_template) -1, bins_MRec_template), "D_0Minus", "D_CP", "zll_recoil_m", "nominal_weight"))
+        # results.append(df.Histo3D(("ggH_SM_250", "", *(bins_D0_template + bins_D_CP_template + bins_MRec_template)), "D_0Minus", "D_CP", "zll_recoil_m", "nominal_weight"))
+        results.append(df.Histo1D(("D_0Minus", "", *bins_cos), "D_0Minus", "nominal_weight"))
+        results.append(df.Histo1D(("D_CP", "", *bins_cos), "D_CP", "nominal_weight")) 
+
+        if dataset in sigProcs:
+            results.append(df.Histo3D(("Angles_Template_BSM", "", *(bins_cos_Template + bins_cos_Template + bins_phi_Template)), "cos_1", "cos_2", "phi", "BSMWeightsNORM"))
+            results.append(df.Histo3D(("Angles_Template_Int", "", *(bins_cos_Template + bins_cos_Template + bins_phi_Template)), "cos_1", "cos_2", "phi", "InterferenceWeightsNORM"))
+            # results.append(df.Histo3D(("ggH_g4ZZ_250", "", *(bins_D0_template + bins_D_CP_template + bins_MRec_template)), "D_0Minus", "D_CP", "zll_recoil_m", "BSMWeightsNORM"))
+            results.append(df.Histo3D(("ggH_g4ZZ_250", "", len(bins_D0_template) -1, bins_D0_template, len(bins_D_CP_template) -1, bins_D_CP_template, len(bins_MRec_template) -1, bins_MRec_template), "D_0Minus", "D_CP", "zll_recoil_m", "BSMWeightsNORM"))
+            # results.append(df.Histo3D(("ggH_interff_g11g41_250", "", *(bins_D0_template + bins_D_CP_template + bins_MRec_template)), "D_0Minus", "D_CP", "zll_recoil_m", "InterferenceWeightsNORM"))
+            results.append(df.Histo3D(("ggH_interff_g11g41_250", "", len(bins_D0_template) -1, bins_D0_template, len(bins_D_CP_template) -1, bins_D_CP_template, len(bins_MRec_template) -1, bins_MRec_template), "D_0Minus", "D_CP", "zll_recoil_m", "InterferenceWeightsNORM"))
+
     # results.append(df.Histo1D(("RecoNegInterferenceWeights", "", *bins_weight), "RecoNegInterferenceWeights", "nominal_weight"))
 
     # results.append(df.Histo1D(("SMWeights", "", *bins_weight), "RecoSMWeights", "nominal_weight"))

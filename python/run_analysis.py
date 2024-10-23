@@ -819,6 +819,9 @@ def run_histmaker(args, rdf_module, anapath):
         events_processed = events_processed_dict[process] \
             if events_processed_dict[process] != 0 else evtcount.GetValue()
         scale = cross_section*kfactor*matching_efficiency/events_processed
+        print("This is events processed: ", events_processed)
+
+        print("this is scale: ", scale*int_lumi)
 
         nevents_tot += evtcount.GetValue()
 
