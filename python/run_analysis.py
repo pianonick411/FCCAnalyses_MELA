@@ -357,6 +357,7 @@ def send_to_batch(rdf_module, chunk_list, process, anapath: str):
     log_dir = os.path.join(local_dir, 'BatchOutputs', current_date, process)
     if not os.path.exists(log_dir):
         os.system(f'mkdir -p {log_dir}')
+        print("made logdir: ", log_dir)
 
     # Making sure the FCCAnalyses libraries are compiled and installed
     try:

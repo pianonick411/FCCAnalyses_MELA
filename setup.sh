@@ -1,7 +1,7 @@
 if [ "${0}" != "${BASH_SOURCE}" ]; then
   # Determinig the location of this setup script
   export LOCAL_DIR=$(cd $(dirname "${BASH_SOURCE}") && pwd)
-
+  
   echo "----> Info: Setting up Key4hep stack..."
   # Sourcing of the stack
   if [ -n "${KEY4HEP_STACK}" ]; then
@@ -49,8 +49,8 @@ fi
 
 #Modified this to set up MELA
 export ROOFITSYS=${ROOTSYS}
-cd JHUGenerator.v7.5.5/JHUGenMELA
-source ./setup.sh 
-eval $(./setup.sh env)
-cd ../../
+#cd ./JHUGenerator.v7.5.5/JHUGenMELA
+source ${LOCAL_DIR}/JHUGenerator.v7.5.5/JHUGenMELA/setup.sh 
+eval $(${LOCAL_DIR}/JHUGenerator.v7.5.5/JHUGenMELA//setup.sh env)
+
 

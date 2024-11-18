@@ -2,7 +2,7 @@
 # analysis config
 do_gen = False # replace reco-particles by the corresponding gen particle
 do_weights = False
-runBatch = False
+runBatch = True
 jet_flavor = ""
 
 
@@ -21,12 +21,12 @@ def print_process_id():
 # list of processes
 processList = {
     # main backgrounds
-# 'p8_ee_WW_ecm240': {'fraction':1, 'chunks':10},
+'p8_ee_WW_ecm240': {'fraction':1, 'chunks':1500},
 # 'p8_ee_ZZ_ecm240': {'fraction':1, 'chunks':2},
     #'wzp6_ee_tautau_ecm240': {'fraction':1},
     #'wzp6_ee_mumu_ecm240' if flavor=="mumu" else 'wzp6_ee_ee_Mee_30_150_ecm240': {'fraction':1},
 # 'wzp6_ee_nunuH_ecm240': {'fraction':1, 'chunks':5},
-# "p8_ee_Zqq_ecm240": {'fraction':1},
+ "p8_ee_Zqq_ecm240": {'fraction':1, 'chunks':1500},
 
     # rare backgrounds
     #f'wzp6_egamma_eZ_Z{flavor}_ecm240': {'fraction':1},
@@ -45,7 +45,7 @@ processList = {
 
 
 
-f'wzp6_ee_bbH_Hbb_ecm240': {'fraction':1},
+#f'wzp6_ee_bbH_Hbb_ecm240': {'fraction':1},
 # f'wzp6_ee_bbH_Hcc_ecm240': {'fraction':1},
 #  f'wzp6_ee_bbH_Hss_ecm240': {'fraction':1},
 #     f'wzp6_ee_bbH_Hgg_ecm240': {'fraction':1},
@@ -88,7 +88,7 @@ includePaths = ["functions.h", "JHUfunctions.h"]
 
 
 #Optional: output directory, default is local running directory
-outputDir   = "FCCAnalysisOut/Oct17/"
+outputDir   = "FCCAnalysisOut/Oct27/"
 
 #f"output_{flavor}/"
 
@@ -359,7 +359,7 @@ else:
     nCPUS = -1
 
 # scale the histograms with the cross-section and integrated luminosity
-doScale = False
+doScale = True
 intLumi = 7200000 # 7.2 /ab
 
 
