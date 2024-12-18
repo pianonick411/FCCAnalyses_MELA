@@ -1,7 +1,7 @@
 
 # analysis config
 do_gen = False # replace reco-particles by the corresponding gen particle
-do_weights = True
+do_weights = False
 runBatch = True
 batchQueue = "workday"
 #compGroup = "group_u_FCC.local_gen"
@@ -576,17 +576,20 @@ class RDFanalysis():
         df = df.Define("Best_Jets1_ScoreC", 'VectorOfScoreVectors[Jet1Idx][2]')
         df = df.Define("Best_Jets1_ScoreS", 'VectorOfScoreVectors[Jet1Idx][3]')
         df = df.Define("Best_Jets1_ScoreG", 'VectorOfScoreVectors[Jet1Idx][4]')
+        df = df.Define("Best_Jets1_ScoreTAU", 'VectorOfScoreVectors[Jet1Idx][5]')
 
         df = df.Define("Best_Jets2_ScoreQ", "VectorOfScoreVectors[Jet2Idx][0]")
         df = df.Define("Best_Jets2_ScoreB", "VectorOfScoreVectors[Jet2Idx][1]")
         df = df.Define("Best_Jets2_ScoreC", "VectorOfScoreVectors[Jet2Idx][2]")
         df = df.Define("Best_Jets2_ScoreS", "VectorOfScoreVectors[Jet2Idx][3]")
         df = df.Define("Best_Jets2_ScoreG", "VectorOfScoreVectors[Jet2Idx][4]")
+        df = df.Define("Best_Jets2_ScoreTAU", "VectorOfScoreVectors[Jet2Idx][5]")
+
         return df
         
     def output():
-        branchList = ["muons_no", "electrons_no", "muons_p","electrons_p","Jet1Idx", "Jet2Idx", "Best_Jets_PDG1", "Best_Jets_PDG2","Best_Jets1_ScoreQ","Best_Jets1_ScoreB","Best_Jets1_ScoreC","Best_Jets1_ScoreS","Best_Jets1_ScoreG"]
-        branchList += ["Best_Jets2_ScoreQ","Best_Jets2_ScoreB","Best_Jets2_ScoreC","Best_Jets2_ScoreS","Best_Jets2_ScoreG", "Best_Jets_Result", "qBarPhi"]
+        branchList = ["muons_no", "electrons_no", "muons_p","electrons_p","Jet1Idx", "Jet2Idx", "Best_Jets_PDG1", "Best_Jets_PDG2","Best_Jets1_ScoreQ","Best_Jets1_ScoreB","Best_Jets1_ScoreC","Best_Jets1_ScoreS","Best_Jets1_ScoreG", "Best_Jets1_ScoreTAU"]
+        branchList += ["Best_Jets2_ScoreQ","Best_Jets2_ScoreB","Best_Jets2_ScoreC","Best_Jets2_ScoreS","Best_Jets2_ScoreG", "Best_Jets2_ScoreTAU","Best_Jets_Result", "qBarPhi"]
         branchList += ["vis_theta", "vis_E", "vis_M"]
         if do_weights: 
             branchList +=["SMWeights", "BSMWeights", "InterferenceWeights", "MixtureWeights", "NegMixtureWeights"]

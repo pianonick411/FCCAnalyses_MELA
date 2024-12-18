@@ -200,6 +200,9 @@ int PDGFromScoreVec(Vec_f Scores){
     else if (idx == 4){
         PDG = 21; 
     }
+    else if (idx == 5){
+        PDG = 15; 
+    }
     return PDG; 
 }
 
@@ -635,6 +638,17 @@ Vec_f MakeScoreVector(float ScoreQ, float ScoreB, float ScoreC, float ScoreS, fl
     result.push_back(ScoreC); 
     result.push_back(ScoreS); 
     result.push_back(ScoreG); 
+    return result; 
+}
+
+Vec_f MakeScoreVector(float ScoreQ, float ScoreB, float ScoreC, float ScoreS, float ScoreG, float ScoreTau){
+    Vec_f result; 
+    result.push_back(ScoreQ); 
+    result.push_back(ScoreB); 
+    result.push_back(ScoreC); 
+    result.push_back(ScoreS); 
+    result.push_back(ScoreG); 
+    result.push_back(ScoreTau); 
     return result; 
 }
 
