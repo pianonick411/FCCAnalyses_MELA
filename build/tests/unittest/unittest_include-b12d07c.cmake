@@ -1,0 +1,5 @@
+if(EXISTS "/afs/cern.ch/user/n/nipinto/public/FCCAnalyses_MELA/build/tests/unittest/unittest_tests-b12d07c.cmake")
+  include("/afs/cern.ch/user/n/nipinto/public/FCCAnalyses_MELA/build/tests/unittest/unittest_tests-b12d07c.cmake")
+else()
+  add_test(unittest_NOT_BUILT-b12d07c unittest_NOT_BUILT-b12d07c)
+endif()

@@ -1,0 +1,5 @@
+if(EXISTS "/afs/cern.ch/user/n/nipinto/public/FCCAnalyses_MELA/build/addons/ONNXRuntime/onnxruntime-unittest_tests-b12d07c.cmake")
+  include("/afs/cern.ch/user/n/nipinto/public/FCCAnalyses_MELA/build/addons/ONNXRuntime/onnxruntime-unittest_tests-b12d07c.cmake")
+else()
+  add_test(onnxruntime-unittest_NOT_BUILT-b12d07c onnxruntime-unittest_NOT_BUILT-b12d07c)
+endif()

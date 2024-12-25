@@ -1,0 +1,47 @@
+{ decls }
+namespace std {  }
+namespace ROOT { namespace VecOps {  } }
+namespace edm4hep { class ReconstructedParticleData; }
+namespace ROOT { namespace VecOps { template <typename T> class RVec; } }
+namespace edm4hep { class CalorimeterHitData; }
+class TVector3;
+namespace edm4hep { class ClusterData; }
+namespace edm4hep { class MCParticleData; }
+class TLorentzVector;
+namespace edm4hep { class TrackState; }
+namespace edm4hep { class Vector3d; }
+namespace FCCAnalyses { namespace VertexingUtils { class FCCAnalysesVertex; } }
+namespace edm4hep { class VertexData; }
+namespace podio { class ObjectID; }
+
+[ libFCCAnalyses.so ]
+# List of selected classes
+class ROOT::VecOps::RVec<FCCAnalyses::VertexingUtils::FCCAnalysesVertex>
+class ROOT::VecOps::RVec<ROOT::VecOps::RVec<FCCAnalyses::VertexingUtils::FCCAnalysesVertex> >
+class ROOT::VecOps::RVec<ROOT::VecOps::RVec<TLorentzVector> >
+class ROOT::VecOps::RVec<ROOT::VecOps::RVec<TVector3> >
+class ROOT::VecOps::RVec<ROOT::VecOps::RVec<double> >
+class ROOT::VecOps::RVec<ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> >
+class ROOT::VecOps::RVec<ROOT::VecOps::RVec<float> >
+class ROOT::VecOps::RVec<ROOT::VecOps::RVec<int> >
+class ROOT::VecOps::RVec<TLorentzVector>
+class ROOT::VecOps::RVec<TVector3>
+class ROOT::VecOps::RVec<edm4hep::CalorimeterHitData>
+class ROOT::VecOps::RVec<edm4hep::ClusterData>
+class ROOT::VecOps::RVec<edm4hep::MCParticleData>
+class ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData>
+class ROOT::VecOps::RVec<edm4hep::TrackState>
+class ROOT::VecOps::RVec<edm4hep::Vector3d>
+class ROOT::VecOps::RVec<edm4hep::VertexData>
+class ROOT::VecOps::RVec<podio::ObjectID>
+class ROOT::VecOps::RVec<std::vector<float> >
+class ROOT::VecOps::RVec<vector<float> >
+class vector<TLorentzVector>
+class vector<std::string>
+class vector<std::vector<double> >
+class vector<std::vector<float> >
+class vector<std::vector<int> >
+class vector<string>
+class vector<vector<double> >
+class vector<vector<float> >
+class vector<vector<int> >

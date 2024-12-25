@@ -1,0 +1,16 @@
+imax 1
+jmax 3
+kmax *
+------------
+shapes * * $CHANNEL.input.root $PROCESS $PROCESS_$SYSTEMATIC
+------------
+bin /eos/user/n/nipinto/FCCAnalyses_MELA/analysis/FinishingDiscrimants/mumuanalysis
+observation 27915.470165528357
+------------
+bin /eos/user/n/nipinto/FCCAnalyses_MELA/analysis/FinishingDiscrimants/mumuanalysis /eos/user/n/nipinto/FCCAnalyses_MELA/analysis/FinishingDiscrimants/mumuanalysis /eos/user/n/nipinto/FCCAnalyses_MELA/analysis/FinishingDiscrimants/mumuanalysis /eos/user/n/nipinto/FCCAnalyses_MELA/analysis/FinishingDiscrimants/mumuanalysis
+process ggH_0PM ggH_0M ggH_g11g41_negative ggH_g11g41_positive
+process -1 -2 -3 -4
+rate 19810.37536239624 186531.3097629547 4059.371239282191 4045.7236069738865
+------------
+lumi_13TeV lnN 1.025/0.975 1.025/0.975 1.025/0.975 1.025/0.975
+EWcorr_qqZZ lnN - - - -

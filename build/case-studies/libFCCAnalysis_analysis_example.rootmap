@@ -1,0 +1,6 @@
+{ decls }
+namespace analysis_example {  }
+
+[ liblibFCCAnalysis_analysis_example_dictrflx.so ]
+# List of selected classes
+class analysis_example::dictionary

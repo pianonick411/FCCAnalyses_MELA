@@ -1,0 +1,29 @@
+module "FCCAnalyses" {
+  requires cplusplus
+  module "FCCAnalyses/Algorithms.h" { header "FCCAnalyses/Algorithms.h" export * }
+  module "FCCAnalyses/CaloNtupleizer.h" { header "FCCAnalyses/CaloNtupleizer.h" export * }
+  module "FCCAnalyses/Defines.h" { header "FCCAnalyses/Defines.h" export * }
+  module "FCCAnalyses/JetClusteringUtils.h" { header "FCCAnalyses/JetClusteringUtils.h" export * }
+  module "FCCAnalyses/JetConstituentsUtils.h" { header "FCCAnalyses/JetConstituentsUtils.h" export * }
+  module "FCCAnalyses/JetFlavourUtils.h" { header "FCCAnalyses/JetFlavourUtils.h" export * }
+  module "FCCAnalyses/JetTaggingUtils.h" { header "FCCAnalyses/JetTaggingUtils.h" export * }
+  module "FCCAnalyses/Logger.h" { header "FCCAnalyses/Logger.h" export * }
+  module "FCCAnalyses/MCParticle.h" { header "FCCAnalyses/MCParticle.h" export * }
+  module "FCCAnalyses/ReconstructedParticle.h" { header "FCCAnalyses/ReconstructedParticle.h" export * }
+  module "FCCAnalyses/ReconstructedParticle2MC.h" { header "FCCAnalyses/ReconstructedParticle2MC.h" export * }
+  module "FCCAnalyses/ReconstructedParticle2Track.h" { header "FCCAnalyses/ReconstructedParticle2Track.h" export * }
+  module "FCCAnalyses/ReconstructedTrack.h" { header "FCCAnalyses/ReconstructedTrack.h" export * }
+  module "FCCAnalyses/SmearObjects.h" { header "FCCAnalyses/SmearObjects.h" export * }
+  module "FCCAnalyses/Smearing.h" { header "FCCAnalyses/Smearing.h" export * }
+  module "FCCAnalyses/Utils.h" { header "FCCAnalyses/Utils.h" export * }
+  module "FCCAnalyses/VertexFinderLCFIPlus.h" { header "FCCAnalyses/VertexFinderLCFIPlus.h" export * }
+  module "FCCAnalyses/VertexFitterSimple.h" { header "FCCAnalyses/VertexFitterSimple.h" export * }
+  module "FCCAnalyses/VertexingUtils.h" { header "FCCAnalyses/VertexingUtils.h" export * }
+  module "FCCAnalyses/WeaverUtils.h" { header "FCCAnalyses/WeaverUtils.h" export * }
+  module "FCCAnalyses/dummyLoader.h" { header "FCCAnalyses/dummyLoader.h" export * }
+  module "FCCAnalyses/myFinalSel.h" { header "FCCAnalyses/myFinalSel.h" export * }
+  module "FCCAnalyses/myUtils.h" { header "FCCAnalyses/myUtils.h" export * }
+  link "libFCCAnalyses.so"
+  export *
+}
+

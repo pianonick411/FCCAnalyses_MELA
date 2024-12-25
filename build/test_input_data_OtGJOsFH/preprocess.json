@@ -1,0 +1,107 @@
+{
+  "output_names": [
+    "recojet_isG",
+    "recojet_isQ",
+    "recojet_isS",
+    "recojet_isC",
+    "recojet_isB"
+  ],
+  "input_names": [
+    "pf_points",
+    "pf_features",
+    "pf_mask"
+  ],
+  "pf_points": {
+    "var_names": [
+      "pfcand_theta",
+      "pfcand_phi"
+    ],
+    "var_infos": {
+      "pfcand_theta": {
+        "median": 1.5696220397949219,
+        "norm_factor": 1.1826280749202898,
+        "replace_inf_value": 0,
+        "lower_bound": -5,
+        "upper_bound": 5,
+        "pad": 0
+      },
+      "pfcand_phi": {
+        "median": -0.003778834594413638,
+        "norm_factor": 0.4678485320284514,
+        "replace_inf_value": 0,
+        "lower_bound": -5,
+        "upper_bound": 5,
+        "pad": 0
+      }
+    },
+    "var_length": 50
+  },
+  "pf_features": {
+    "var_names": [
+      "pfcand_e",
+      "pfcand_theta",
+      "pfcand_phi",
+      "pfcand_pid",
+      "pfcand_charge"
+    ],
+    "var_infos": {
+      "pfcand_e": {
+        "median": 1.7334833145141602,
+        "norm_factor": 0.2775464778704637,
+        "replace_inf_value": 0,
+        "lower_bound": -5,
+        "upper_bound": 5,
+        "pad": 0
+      },
+      "pfcand_theta": {
+        "median": 1.5696220397949219,
+        "norm_factor": 1.1826280749202898,
+        "replace_inf_value": 0,
+        "lower_bound": -5,
+        "upper_bound": 5,
+        "pad": 0
+      },
+      "pfcand_phi": {
+        "median": -0.003778834594413638,
+        "norm_factor": 0.4678485320284514,
+        "replace_inf_value": 0,
+        "lower_bound": -5,
+        "upper_bound": 5,
+        "pad": 0
+      },
+      "pfcand_pid": {
+        "median": 22.0,
+        "norm_factor": 0.004291845493562232,
+        "replace_inf_value": 0,
+        "lower_bound": -5,
+        "upper_bound": 5,
+        "pad": 0
+      },
+      "pfcand_charge": {
+        "median": 0.0,
+        "norm_factor": 1.0,
+        "replace_inf_value": 0,
+        "lower_bound": -5,
+        "upper_bound": 5,
+        "pad": 0
+      }
+    },
+    "var_length": 50
+  },
+  "pf_mask": {
+    "var_names": [
+      "pfcand_mask"
+    ],
+    "var_infos": {
+      "pfcand_mask": {
+        "median": 0,
+        "norm_factor": 1,
+        "replace_inf_value": 0,
+        "lower_bound": -1e+32,
+        "upper_bound": 1e+32,
+        "pad": 0
+      }
+    },
+    "var_length": 50
+  }
+}
